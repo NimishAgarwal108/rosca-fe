@@ -1,0 +1,51 @@
+export const Authentication_Fields = [
+  {
+    id: "006",
+    name: "firstName",
+    label: "First Name",
+    type: "text",
+    placeholder: "First Name",
+  },
+  {
+    id: "007",
+    name: "lastName",
+    label: "Last Name",
+    type: "text",
+    placeholder: "Last Name",
+  },
+  {
+    id: "001",
+    name: "emailOrPhone",
+    label: "Email / Phone Number",
+    type: "text",
+    placeholder: "Enter your email or phone",
+  },
+  {
+    id: "002",
+    name: "email",
+    label: "Email ID",
+    type: "text",
+    placeholder: "Enter your Email ID",
+  },
+  {
+    id: "003",
+    name: "phone",
+    label: "Phone Number",
+    type: "text",
+    placeholder: "Enter your phone number",
+  },
+  {
+    id: "004",
+    name: "password",
+    label: "Password",
+    type: "password",
+    placeholder: "Enter your password",
+  },
+  {
+    id: "005",
+    name: "confirmPassword",
+    label: "Confirm Password",
+    type: "password",
+    placeholder: "Re-enter your password",
+  },
+];
