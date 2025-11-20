@@ -9,6 +9,14 @@ import Image from "next/image";
 import { MapPin, Bed, Bath } from "lucide-react";
 import { toast } from "sonner";
 
+// Helper function to construct image URL correctly
+const getImageUrl = (imagePath) => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+  // Remove leading slash from imagePath if it exists to avoid double slashes
+  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+  return `${baseUrl}/${cleanPath}`;
+};
+
 export default function Main() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,10 +98,10 @@ export default function Main() {
               >
                 {/* Room Image */}
                 <div className="relative h-56 bg-gray-200">
-                  {room.image ? (
+                  {room.images && room.images.length > 0 ? (
                     <Image
-                      src={room.image}
-                      alt={room.title}
+                      src={getImageUrl(room.images[0])}
+                      alt={room.roomTitle}
                       fill
                       className="object-cover"
                     />
@@ -107,7 +115,7 @@ export default function Main() {
                 {/* Room Details */}
                 <div className="p-5">
                   <Typography variant="h3" className="mb-2 line-clamp-1">
-                    {room.title}
+                    {room.roomTitle}
                   </Typography>
 
                   <div className="flex items-center text-gray-600 mb-2">
@@ -118,7 +126,7 @@ export default function Main() {
                   </div>
 
                   <Typography variant="paraPrimary" className="text-blue-600 mb-3">
-                    {room.roomType}
+                    {room.type}
                   </Typography>
 
                   {/* Facilities */}
@@ -127,7 +135,7 @@ export default function Main() {
                       <Bed className="h-4 w-4" /> {room.beds || 1}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Bath className="h-4 w-4" /> {room.baths || 1}
+                      <Bath className="h-4 w-4" /> {room.bathrooms || 1}
                     </span>
                   </div>
 

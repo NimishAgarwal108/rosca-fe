@@ -1,6 +1,22 @@
 const baseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
+// Helper function to get the base URL without /api suffix for static assets
+export const getServerBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_BASE_URL 
+    ? process.env.NEXT_PUBLIC_API_BASE_URL.replace('/api', '')
+    : "http://localhost:3000";
+};
+
+// Helper function to construct full image URL from path
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  // If imagePath already starts with http, return as is
+  if (imagePath.startsWith('http')) return imagePath;
+  // Otherwise, prepend server base URL
+  return `${getServerBaseUrl()}${imagePath}`;
+};
+
 export async function getAllRooms() {
   try {
     const response = await fetch(`${baseUrl}/rooms`, {
@@ -39,19 +55,21 @@ export async function getRoomById(id) {
   }
 }
 
-export async function addRoom(payload) {
+export async function addRoom(formData) {
   try {
     console.log("📤 ═══════════════════════════════════════");
     console.log("📤 Sending room data to:", `${baseUrl}/rooms`);
-    console.log("📤 Payload contents:", payload);
+    
+    // Log FormData contents for debugging
+    for (let pair of formData.entries()) {
+      console.log("📤", pair[0], ":", pair[1]);
+    }
     console.log("📤 ═══════════════════════════════════════");
 
     const response = await fetch(`${baseUrl}/rooms`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+      body: formData,
+      // DO NOT set Content-Type header; browser sets it automatically for multipart/form-data
     });
 
     console.log("📥 Response status:", response.status);

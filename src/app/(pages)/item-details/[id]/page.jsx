@@ -9,11 +9,24 @@ import { use, useEffect, useState } from "react";
 import { getRoomById } from "@/lib/API/roomApi";
 import { toast } from "sonner";
 
+// Helper function to construct image URL correctly
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return '';
+  
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+  
+  // Remove ALL leading slashes to prevent double slashes
+  const cleanPath = imagePath.replace(/^\/+/, '');
+  
+  return `${baseUrl}/${cleanPath}`;
+};
+
 export default function RoomDetails({ params }) {
   const { id } = use(params);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     fetchRoomDetails();
@@ -74,19 +87,51 @@ export default function RoomDetails({ params }) {
       <main className="pt-32">
         <section className="max-w-6xl mx-auto px-6 py-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {/* Room Image */}
-            <div className="overflow-hidden rounded-2xl shadow-lg h-full">
-              {room.image ? (
-                <Image
-                  src={room.image}
-                  alt={room.title}
-                  width={1400}
-                  height={700}
-                  className="object-cover w-full h-full rounded-2xl"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-2xl">
-                  <span className="text-gray-400">No Image Available</span>
+            {/* Room Images */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="overflow-hidden rounded-2xl shadow-lg h-[400px] relative">
+                {room.images && room.images.length > 0 ? (
+                  <>
+                    <Image
+                      src={getImageUrl(room.images[currentImageIndex])}
+                      alt={room.roomTitle}
+                      fill
+                      className="object-cover rounded-2xl"
+                    />
+                    {/* Image Counter */}
+                    <div className="absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                      {currentImageIndex + 1} / {room.images.length}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-2xl">
+                    <span className="text-gray-400">No Image Available</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Thumbnail Images */}
+              {room.images && room.images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto">
+                  {room.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                        currentImageIndex === index
+                          ? "border-blue-600 scale-105"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                    >
+                      <Image
+                        src={getImageUrl(image)}
+                        alt={`${room.roomTitle} - Image ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -98,7 +143,7 @@ export default function RoomDetails({ params }) {
                   variant="h1"
                   className="text-3xl md:text-4xl font-semibold"
                 >
-                  {room.title}
+                  {room.roomTitle}
                 </Typography>
 
                 <div className="flex items-center text-gray-600 mt-2 text-lg">
@@ -110,7 +155,7 @@ export default function RoomDetails({ params }) {
                   variant="paraSecondary"
                   className="mt-1 text-blue-600"
                 >
-                  {room.roomType}
+                  {room.type}
                 </Typography>
               </div>
 
@@ -120,14 +165,14 @@ export default function RoomDetails({ params }) {
               </Typography>
 
               {/* Owner Info */}
-              {room.owner && (
+              {room.ownerName && (
                 <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl shadow-sm">
                   <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl">
-                    {room.owner.charAt(0).toUpperCase()}
+                    {room.ownerName.charAt(0).toUpperCase()}
                   </div>
                   <Typography variant="paraPrimary">
                     Hosted by{" "}
-                    <span className="font-semibold">{room.owner}</span>
+                    <span className="font-semibold">{room.ownerName}</span>
                   </Typography>
                 </div>
               )}
@@ -140,13 +185,13 @@ export default function RoomDetails({ params }) {
 
                 <div className="flex flex-wrap gap-4 text-gray-700 text-lg">
                   <span className="flex items-center gap-2">
-                    <Bed /> {room.beds || 1} Bed
+                    <Bed /> {room.beds || 1} {room.beds === 1 ? "Bed" : "Beds"}
                   </span>
                   <span className="flex items-center gap-2">
-                    <Bath /> {room.baths || 1} Bath
+                    <Bath /> {room.bathrooms || 1} {room.bathrooms === 1 ? "Bathroom" : "Bathrooms"}
                   </span>
 
-                  {room.amenities?.map((item, i) => (
+                  {room.amenities && room.amenities.length > 0 && room.amenities.map((item, i) => (
                     <span key={i} className="flex items-center gap-2">
                       ✅ {item}
                     </span>
@@ -162,45 +207,47 @@ export default function RoomDetails({ params }) {
               </Typography>
 
               {/* Owner Rules */}
-              {room.ownerDemands && (
+              {room.ownerRequirements && (
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-md">
                   <Typography variant="h4" className="font-semibold block">
                     Owner Rules & Requirements
                   </Typography>
                   <Typography variant="paraPrimary" className="mt-1">
-                    {room.ownerDemands}
+                    {room.ownerRequirements}
                   </Typography>
                 </div>
               )}
 
               {/* Contact Section */}
-              <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 border">
-                <Typography variant="h3" className="text-xl font-semibold">
-                  Interested in this room?
-                </Typography>
+              {room.contactNumber && (
+                <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 border">
+                  <Typography variant="h3" className="text-xl font-semibold">
+                    Interested in this room?
+                  </Typography>
 
-                <Typography variant="paraSecondary">
-                  Contact the room owner and schedule a visit.
-                </Typography>
+                  <Typography variant="paraSecondary">
+                    Contact the room owner and schedule a visit.
+                  </Typography>
 
-                <div className="flex gap-4 flex-wrap">
-                  <a
-                    href={`tel:${room.contact}`}
-                    className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition"
-                  >
-                    Call Owner
-                  </a>
+                  <div className="flex gap-4 flex-wrap">
+                    <a
+                      href={`tel:${room.contactNumber}`}
+                      className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition"
+                    >
+                      Call Owner
+                    </a>
 
-                  <a
-                    href={`https://wa.me/91${room.contact}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition"
-                  >
-                    WhatsApp Now
-                  </a>
+                    <a
+                      href={`https://wa.me/91${room.contactNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition"
+                    >
+                      WhatsApp Now
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>

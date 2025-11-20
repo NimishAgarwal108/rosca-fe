@@ -76,6 +76,7 @@ const initialValues = {
   ownerRequirements: "",
   contactNumber: "",
   ownerName: "",
+  images: [], // Added here for Formik to track image files
 };
 
 export default function AddRoom() {
@@ -94,25 +95,36 @@ export default function AddRoom() {
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             setSubmitting(true);
             try {
-              // Build regular object instead of FormData
-              const payload = {
-                roomTitle: values.roomTitle.trim(),
-                location: values.location.trim(),
-                price: Number(values.price),
-                type: values.type,
-                beds: Number(values.beds) || 1,
-                bathrooms: Number(values.bathrooms) || 1,
-                description: values.description?.trim() || "",
-                ownerRequirements: values.ownerRequirements?.trim() || "",
-                contactNumber: values.contactNumber,
-                ownerName: values.ownerName.trim(),
-                amenities: values.amenities || [],
-              };
+              // Build FormData object for multipart/form-data submission
+              const formData = new FormData();
+              formData.append("roomTitle", values.roomTitle.trim());
+              formData.append("location", values.location.trim());
+              formData.append("price", Number(values.price));
+              formData.append("type", values.type);
+              formData.append("beds", Number(values.beds) || 1);
+              formData.append("bathrooms", Number(values.bathrooms) || 1);
+              formData.append("description", values.description?.trim() || "");
+              formData.append(
+                "ownerRequirements",
+                values.ownerRequirements?.trim() || ""
+              );
+              formData.append("contactNumber", values.contactNumber);
+              formData.append("ownerName", values.ownerName.trim());
+              values.amenities.forEach((amenity) =>
+                formData.append("amenities", amenity)
+              );
 
-              console.log("Sending payload:", payload); // Debug log
+              // Append images to formData if any
+              if (values.images && values.images.length > 0) {
+                Array.from(values.images).forEach((file) =>
+                  formData.append("images", file)
+                );
+              }
 
-              // call API with JSON payload
-              const response = await addRoom(payload);
+              console.log("Sending payload with images:", values);
+
+              // call API with FormData
+              const response = await addRoom(formData);
 
               if (response && response.success) {
                 toast.success("Room added successfully!");
@@ -142,8 +154,30 @@ export default function AddRoom() {
               <Form className="space-y-4">
                 {/* Map fields (excluding type, amenities, and file fields) */}
                 {AddRoom_Fields.map((field) => {
-                  if (field.name === "amenities" || field.type === "file")
-                    return null;
+                  if (field.name === "amenities") return null;
+
+                  if (field.type === "file") {
+                    return (
+                      <div key={field.id}>
+                        <label className="font-medium">{field.label}</label>
+                        <input
+                          type="file"
+                          name={field.name}
+                          multiple
+                          accept="image/*"
+                          onChange={(event) =>
+                            setFieldValue(field.name, event.currentTarget.files)
+                          }
+                          className="w-full p-2 border rounded-md"
+                        />
+                        <ErrorMessage
+                          name={field.name}
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      </div>
+                    );
+                  }
 
                   if (field.type === "textarea") {
                     return (
