@@ -2,15 +2,15 @@ import About from "@/components/custom/about";
 import Footer from "@/components/custom/footer";
 import Header from "@/components/custom/header";
 import { Typography } from "@/components/custom/typography";
-import { properties } from "@/Store/Example-store";
 import IMAGES from "./assets/images.constant";
 import { EXPLORE, NAVIGATION_ROUTES } from "./constant.jsx";
 
+import Main from "@/components/custom/main";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
-  const featuredProperties = properties.filter((item) => item.list === "true");
+  // const featuredProperties = properties.filter((item) => item.list === "true");
 
   return (
     <>
@@ -43,7 +43,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Featured Rooms Section */}
+        {/*========================================================== Featured Rooms Section==================================================================================== 
         <section id="rooms" className="w-full max-w-6xl py-16 px-6">
           <Typography variant="h1" className="ml-20">
             Featured Rooms
@@ -87,6 +87,8 @@ export default function Home() {
             </Typography>
           )}
         </section>
+        */}
+        <Main />
         <About />
         {/* Footer */}
         <Footer />

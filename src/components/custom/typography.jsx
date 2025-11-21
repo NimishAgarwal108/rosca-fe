@@ -2,7 +2,7 @@
 
 import { cn } from "../../lib/utils";
 
-// 1. Define all variants
+// Define all variants
 export const typographyVariants = {
   h1: "font-primary text-4xl md:text-5xl font-bold text-slate-800 leading-tight tracking-tight animate-fadeSlide",
   h2: "font-primary text-3xl font-semibold text-indigo-800 mt-6 mb-3 tracking-tight",
@@ -26,7 +26,7 @@ export const typographyVariants = {
     "font-primary text-gray-800 font-medium hover:text-indigo-600 underline",
 
   buttonPrimary:
-    "font-primary font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg py-3 px-6 transition-all shadow-md",
+    "font-primary font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg py-3 px-6 transition-all shadow-md cursor-pointer",
   buttonSecondary:
     "font-primary font-medium text-gray-900 bg-amber-400 hover:bg-amber-500 rounded-lg py-3 px-6 transition-all shadow-md mt-4",
   buttonHighLight:
@@ -45,7 +45,7 @@ export const typographyVariants = {
     "font-primary text-lg font-medium text-indigo-700 text-center bg-indigo-50 border-l-4 border-indigo-600 rounded-md py-3 px-4 animate-popIn",
 };
 
-// 2. Typography component with `as` prop
+//Typography component with `as` prop
 export function Typography({
   as: Component = "span",
   variant = "body",
