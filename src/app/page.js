@@ -5,9 +5,9 @@ import { Typography } from "@/components/custom/typography";
 import IMAGES from "./assets/images.constant";
 import { EXPLORE, NAVIGATION_ROUTES } from "./constant.jsx";
 
+import Main from "@/components/custom/main";
 import Image from "next/image";
 import Link from "next/link";
-import Main from "../components/custom/main";
 
 export default function Home() {
   // const featuredProperties = properties.filter((item) => item.list === "true");
