@@ -1,6 +1,6 @@
 import Footer from "@/components/custom/footer";
 import Header from "@/components/custom/header";
-import Main from "../../../components/custom/main";
+import Main from "../../../components/custom/Main";
 
 export default function Page() {
   return (

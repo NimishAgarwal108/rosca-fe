@@ -7,7 +7,7 @@ import { EXPLORE, NAVIGATION_ROUTES } from "./constant.jsx";
 
 import Image from "next/image";
 import Link from "next/link";
-import Main from "../components/custom/main";
+import Main from "../components/custom/Main";
 
 export default function Home() {
   // const featuredProperties = properties.filter((item) => item.list === "true");
