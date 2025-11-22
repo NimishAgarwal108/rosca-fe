@@ -76,3 +76,77 @@ export const AddRoom_Fields = [
     type: "file",
   },
 ];
+
+// Add EDIT_FIELDS export (same as AddRoom_Fields but without the file upload field for editing)
+export const EDIT_FIELDS = [
+  {
+    id: "012",
+    name: "ownerName",
+    label: "Owner name",
+    type: "text",
+    placeholder: "Owner name",
+  },
+  {
+    id: "001",
+    name: "roomTitle",
+    label: "Room Title (Enter your property name)",
+    type: "text",
+    placeholder: "Enter room title (e.g., Cozy Apartment)",
+  },
+  {
+    id: "002",
+    name: "location",
+    label: "Location",
+    type: "text",
+    placeholder: "Enter location (e.g., Rajpur Road, Dehradun)",
+  },
+  {
+    id: "003",
+    name: "price",
+    label: "Price (₹)",
+    type: "number",
+    placeholder: "Enter monthly rent",
+  },
+  {
+    id: "004",
+    name: "beds",
+    label: "Beds",
+    type: "number",
+    placeholder: "Number of beds",
+  },
+  {
+    id: "005",
+    name: "bathrooms",
+    label: "Baths",
+    type: "number",
+    placeholder: "Number of bathrooms",
+  },
+  {
+    id: "007",
+    name: "amenities",
+    label: "Facilities",
+    type: "text",
+    placeholder: "Select amenities",
+  },
+  {
+    id: "008",
+    name: "description",
+    label: "Room Description",
+    type: "textarea",
+    placeholder: "Enter room details...",
+  },
+  {
+    id: "009",
+    name: "ownerRequirements",
+    label: "Owner Requirements",
+    type: "text",
+    placeholder: "Security, no smoking, etc.",
+  },
+  {
+    id: "010",
+    name: "contactNumber",
+    label: "Contact Number",
+    type: "text",
+    placeholder: "Enter owner's contact number",
+  },
+];

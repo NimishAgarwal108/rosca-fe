@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-//import { EDIT_FIELDS } from "../../../Store/AddRooms_Fields";
+import { EDIT_FIELDS } from "../../../Store/AddRooms_Fields";
 import { NAVIGATION_ROUTES } from "../../constant";
 
 export default function ProfilePage() {
@@ -363,7 +363,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Input Fields */}
-              {/* <div className="space-y-4">
+              <div className="space-y-4">
                 {EDIT_FIELDS.map((field) => (
                   <div key={field.name}>
                     <Typography variant="h3">{field.label}</Typography>
@@ -376,7 +376,7 @@ export default function ProfilePage() {
                     />
                   </div>
                 ))}
-              </div>*/}
+              </div>
 
               {/* Buttons */}
               <div className="flex justify-end gap-4 mt-6">
