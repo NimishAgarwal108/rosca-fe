@@ -13,7 +13,7 @@ import { toast } from "sonner";
 const getImageUrl = (imagePath) => {
   if (!imagePath) return '';
   
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'https://rosca-be.vercel.app/';
   
   // Remove ALL leading slashes to prevent double slashes
   const cleanPath = imagePath.replace(/^\/+/, '');

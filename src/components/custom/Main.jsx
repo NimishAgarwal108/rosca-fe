@@ -19,7 +19,7 @@ const getImageUrl = (image) => {
 
   const baseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api", "") ||
-    "http://localhost:3000";
+    "https://rosca-be.vercel.app/";
 
   const cleanPath = image.startsWith("/") ? image.slice(1) : image;
 
