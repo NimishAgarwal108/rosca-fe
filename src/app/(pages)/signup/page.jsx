@@ -11,12 +11,13 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { toast } from "sonner";
 import * as Yup from "yup";
 import { LOGIN, NAVIGATION_ROUTES, RENTAL, SIGNUP } from "../../constant";
 
-export default function SignUpPage() {
+// Separate component that uses useSearchParams
+function SignUpContent() {
   const searchParams = useSearchParams();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -240,5 +241,21 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-orange-300 via-pink-400 to-purple-600">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-xl font-semibold text-gray-800">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignUpContent />
+    </Suspense>
   );
 }
