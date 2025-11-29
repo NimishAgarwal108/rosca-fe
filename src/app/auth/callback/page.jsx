@@ -38,10 +38,18 @@ function CallbackContent() {
           
           toast.success(`Welcome, ${userData.firstName}!`);
           
-          // Force full page reload to reinitialize auth state
-          setTimeout(() => {
-            window.location.href = NAVIGATION_ROUTES.UIPAGE;
-          }, 800);
+          // Check if user has already selected a type
+          if (userData.userType) {
+            // User already has a type, go directly to UIPAGE
+            setTimeout(() => {
+              window.location.href = NAVIGATION_ROUTES.UIPAGE;
+            }, 800);
+          } else {
+            // New user or user without type, go to user-type selection
+            setTimeout(() => {
+              window.location.href = NAVIGATION_ROUTES.USER_TYPE;
+            }, 800);
+          }
           
         } catch (err) {
           console.error('Error processing callback:', err);

@@ -15,12 +15,14 @@ export const NAVIGATION_ROUTES = {
   LOGIN: "/login",
   SIGNUP: "/signup",
   FORGET_PASSWORD: "/forget-password",
+  USER_TYPE: "/user-type", 
   NEW_PASSWORD: "/new-password",
   UIPAGE: "/uipage",
   HOME: "/",
   ABOUT: "/about",
   CONTACT: "/contact",
   ADD_ROOM: "/add-room",
+  AUTH_CALLBACK: "/auth/callback", 
 };
 
 // In your constants file

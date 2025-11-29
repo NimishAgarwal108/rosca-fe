@@ -67,12 +67,22 @@ function LoginContent() {
         toast.success(`Welcome back, ${response.user.firstName}!`);
 
         // Store user data in localStorage
+        localStorage.setItem("authToken", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("userLoggedIn", "true");
 
-        setTimeout(() => {
-          window.location.href = NAVIGATION_ROUTES.UIPAGE;
-        }, 800);
+        // Check if user has selected a type
+        if (response.user.userType) {
+          // User has a type, go to UIPAGE
+          setTimeout(() => {
+            window.location.href = NAVIGATION_ROUTES.UIPAGE;
+          }, 800);
+        } else {
+          // User doesn't have a type yet, go to user-type selection
+          setTimeout(() => {
+            window.location.href = NAVIGATION_ROUTES.USER_TYPE;
+          }, 800);
+        }
 
         resetForm();
       }

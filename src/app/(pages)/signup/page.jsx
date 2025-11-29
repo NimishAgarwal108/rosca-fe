@@ -83,10 +83,15 @@ function SignUpContent() {
       });
 
       if (response.success) {
-        toast.success("Signup successful! Please login to continue.");
+        toast.success("Signup successful! Redirecting to user type selection...");
+
+        // Store user data and redirect to user-type page
+        localStorage.setItem("authToken", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("userLoggedIn", "true");
 
         setTimeout(() => {
-          window.location.href = NAVIGATION_ROUTES.LOGIN;
+          window.location.href = NAVIGATION_ROUTES.USER_TYPE;
         }, 1000);
 
         resetForm();
