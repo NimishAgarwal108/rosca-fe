@@ -36,7 +36,7 @@ export default function UserTypePage() {
         tokenPreview: token ? token.substring(0, 20) + '...' : 'none',
         hasUser: !!userStr,
         selectedType,
-        apiUrl: process.env.NEXT_PUBLIC_API_URL
+        apiUrl: process.env.NEXT_PUBLIC_API_BASE_URL
       });
 
       if (!token) {
@@ -55,7 +55,7 @@ export default function UserTypePage() {
         }
       }
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/users/update-user-type`;
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/update-user-type`;
       console.log('🔍 Making PATCH request to:', url);
       console.log('🔍 Request body:', { userType: selectedType });
 
