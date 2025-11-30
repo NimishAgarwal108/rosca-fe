@@ -7,23 +7,27 @@ const nextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
-
-      // Localhost (for file uploads in development)
+      // Google User Content (for Google profile pictures)
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      // Backend API
+      {
+        protocol: "https",
+        hostname: "rosca-be.vercel.app",
+      },
+      // Localhost (for development)
       {
         protocol: "http",
         hostname: "localhost",
         port: "3000",
       },
-
-      // API Base URL (automatic)
-      {
-        protocol: "https",
-        hostname:
-          process.env.NEXT_PUBLIC_API_BASE_URL?.replace("https://", "")
-            .replace("http://", "")
-            .split("/")[0] || "",
-      },
     ],
+    // Add this to handle images better
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

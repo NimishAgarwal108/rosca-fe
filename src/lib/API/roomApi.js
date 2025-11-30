@@ -2,6 +2,14 @@ const baseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://rosca-be.vercel.app/api";
 
+// Helper function to get auth token
+const getAuthToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('authToken');
+  }
+  return null;
+};
+
 // Helper function to get the base URL without /api suffix for static assets
 export const getServerBaseUrl = () => {
   return process.env.NEXT_PUBLIC_API_BASE_URL
@@ -22,10 +30,10 @@ export async function getAllRooms() {
   try {
     console.log("🔍 Fetching rooms from:", `${baseUrl}/rooms`);
 
-    const response = await fetch(`${baseUrl}/rooms `, {
+    const response = await fetch(`${baseUrl}/rooms`, { // ⚠️ REMOVED TRAILING SPACE
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      cache: "no-store", // Disable caching for dynamic data
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -79,8 +87,13 @@ export async function addRoom(formData) {
     }
     console.log("📤 ═══════════════════════════════════════");
 
+    const token = getAuthToken(); // 🆕 GET TOKEN
+
     const response = await fetch(`${baseUrl}/rooms`, {
       method: "POST",
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '', // 🆕 ADD AUTH HEADER
+      },
       body: formData,
       // DO NOT set Content-Type header; browser sets it automatically for multipart/form-data
     });
@@ -106,9 +119,14 @@ export async function updateRoom(id, roomData) {
   try {
     console.log("🔄 Updating room:", id);
 
+    const token = getAuthToken(); // 🆕 GET TOKEN
+
     const response = await fetch(`${baseUrl}/rooms/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'Authorization': token ? `Bearer ${token}` : '', // 🆕 ADD AUTH HEADER
+      },
       body: JSON.stringify(roomData),
     });
 
@@ -131,9 +149,14 @@ export async function deleteRoom(id) {
   try {
     console.log("🗑 Deleting room:", id);
 
+    const token = getAuthToken(); // 🆕 GET TOKEN
+
     const response = await fetch(`${baseUrl}/rooms/${id}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'Authorization': token ? `Bearer ${token}` : '', // 🆕 ADD AUTH HEADER
+      },
     });
 
     if (!response.ok) {
