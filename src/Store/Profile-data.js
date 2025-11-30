@@ -2,11 +2,13 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // ROOM STORE
-
 export const useRoomStore = create(
   persist(
     (set) => ({
       rooms: [],
+
+      // Set rooms (for fetching from API)
+      setRooms: (rooms) => set({ rooms }),
 
       // Add room
       addRoom: (newRoom) =>

@@ -1,157 +1,160 @@
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://rosca-be.vercel.app/api";
+// src/lib/API/userApi.js
+import axios from 'axios';
 
-export async function signupUser(userData) {
-  try {
-    console.log("📝 Signing up user:", userData.email);
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://rosca-be.vercel.app/api';
 
-    const response = await fetch(`${baseUrl}/users/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
+console.log('🔗 User API Base URL:', API_BASE_URL);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("❌ Signup failed:", errorData);
-      throw new Error(errorData.message || "Signup failed");
-    }
-
-    const data = await response.json();
-    console.log("✅ Signup successful:", data);
-    return data;
-  } catch (error) {
-    console.error("❌ Signup error:", error);
-    throw error;
-  }
-}
-
-export async function loginUser(credentials) {
-  try {
-    console.log("🔐 Logging in user:", credentials.email);
-
-    const response = await fetch(`${baseUrl}/users/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("❌ Login failed:", errorData);
-      throw new Error(errorData.message || "Login failed");
-    }
-
-    const data = await response.json();
-
-    // Store user data in localStorage
-    if (data.success && data.user) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("✅ User data saved to localStorage");
-      }
-    }
-
-    console.log("✅ Login successful:", data);
-    return data;
-  } catch (error) {
-    console.error("❌ Login error:", error);
-    throw error;
-  }
-}
-
-export async function forgotPassword(emailData) {
-  try {
-    console.log("📧 Requesting password reset for:", emailData.email);
-
-    const response = await fetch(`${baseUrl}/users/forgot-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(emailData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("❌ Forgot password failed:", errorData);
-      throw new Error(errorData.message || "Forgot password request failed");
-    }
-
-    const data = await response.json();
-    console.log("✅ Password reset email sent:", data);
-    return data;
-  } catch (error) {
-    console.error("❌ Forgot password error:", error);
-    throw error;
-  }
-}
-
-export async function verifyOtp(otpData) {
-  try {
-    console.log("🔢 Verifying OTP for:", otpData.email);
-
-    const response = await fetch(`${baseUrl}/users/verify-otp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(otpData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("❌ OTP verification failed:", errorData);
-      throw new Error(errorData.message || "OTP verification failed");
-    }
-
-    const data = await response.json();
-    console.log("✅ OTP verified successfully:", data);
-    return data;
-  } catch (error) {
-    console.error("❌ Verify OTP error:", error);
-    throw error;
-  }
-}
-
-export async function resetPassword(resetData) {
-  try {
-    console.log("🔒 Resetting password");
-
-    const response = await fetch(`${baseUrl}/users/reset-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(resetData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("❌ Password reset failed:", errorData);
-      throw new Error(errorData.message || "Password reset failed");
-    }
-
-    const data = await response.json();
-    console.log("✅ Password reset successful:", data);
-    return data;
-  } catch (error) {
-    console.error("❌ Reset password error:", error);
-    throw error;
-  }
-}
-
-export function getCurrentUser() {
-  if (typeof window !== "undefined") {
-    try {
-      const user = localStorage.getItem("user");
-      return user ? JSON.parse(user) : null;
-    } catch (error) {
-      console.error("❌ Error getting current user:", error);
-      return null;
-    }
+// Helper function to get auth token
+const getAuthToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('authToken');
   }
   return null;
-}
+};
 
-export function logout() {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("user");
-    console.log("👋 User logged out");
+// Create axios instance with auth headers
+const createAuthInstance = () => {
+  const token = getAuthToken();
+  return axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      'Authorization': token ? `Bearer ${token}` : '',
+    },
+  });
+};
+
+/**
+ * Get current user info
+ */
+export const getCurrentUserInfo = async () => {
+  try {
+    console.log('🔍 Fetching current user info...');
+    
+    const instance = createAuthInstance();
+    const response = await instance.get('/users/me');
+    
+    console.log('✅ User info fetched:', response.data.user);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching user info:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch user info');
   }
-}
+};
+
+/**
+ * Upload profile picture
+ * @param {File} file - Image file to upload
+ */
+export const uploadProfilePicture = async (file) => {
+  try {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    console.log('📤 Uploading profile picture...', file.name);
+
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/users/upload-profile-picture`,
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    console.log('✅ Profile picture uploaded successfully:', response.data);
+    
+    // Update user in localStorage
+    if (response.data.user) {
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('authToken', response.data.token || token);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error uploading profile picture:', error);
+    console.error('❌ Error details:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to upload profile picture');
+  }
+};
+
+/**
+ * Update user type (host/user)
+ * @param {string} userType - 'host' or 'user'
+ */
+export const updateUserType = async (userType) => {
+  try {
+    if (!['host', 'user'].includes(userType)) {
+      throw new Error('Invalid user type');
+    }
+
+    console.log('🔄 Updating user type to:', userType);
+
+    const instance = createAuthInstance();
+    const response = await instance.patch('/users/update-user-type', {
+      userType,
+    });
+
+    console.log('✅ User type updated:', response.data);
+    
+    // Update user in localStorage
+    if (response.data.user) {
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error updating user type:', error);
+    throw new Error(error.response?.data?.message || 'Failed to update user type');
+  }
+};
+
+/**
+ * Get user's rooms
+ */
+export const getUserRooms = async () => {
+  try {
+    console.log('🏠 Fetching user rooms...');
+
+    const instance = createAuthInstance();
+    const response = await instance.get('/rooms/user/my-rooms');
+
+    console.log('✅ User rooms fetched:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching user rooms:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch user rooms');
+  }
+};
+
+/**
+ * Logout user
+ */
+export const logoutUser = async () => {
+  try {
+    console.log('👋 Logging out user...');
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userLoggedIn');
+      console.log('✅ User logged out successfully');
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error during logout:', error);
+    throw error;
+  }
+};

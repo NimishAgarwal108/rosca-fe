@@ -10,9 +10,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { NAVIGATION_ROUTES } from "../../constant";
+import { getCurrentUserInfo, uploadProfilePicture, getUserRooms } from "@/lib/API/userApi";
 
 export default function ProfilePage() {
-  const { rooms, deleteRoom, updateRoom } = useRoomStore();
+  const { rooms, setRooms, deleteRoom, updateRoom } = useRoomStore();
   const { user, setUser } = useAuthStore();
   
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -24,35 +25,39 @@ export default function ProfilePage() {
   const [profilePicturePreview, setProfilePicturePreview] = useState(user?.profilePicture || null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   
   // Filter rooms by current user
   const userRooms = rooms.filter((room) => room.userId === user?.id);
 
-  // Load user data on mount
+  // Load user data and rooms on mount
   useEffect(() => {
-    const loadUserData = async () => {
+    const loadData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
+        setIsLoadingData(true);
+        
+        // Load current user info
+        const userResponse = await getCurrentUserInfo();
+        if (userResponse.user) {
+          setUser(userResponse.user);
+          setProfilePicturePreview(userResponse.user.profilePicture);
+        }
 
-        const response = await fetch("/api/users/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          setProfilePicturePreview(data.user.profilePicture);
+        // Load user's rooms
+        const roomsResponse = await getUserRooms();
+        if (roomsResponse.data && Array.isArray(roomsResponse.data)) {
+          setRooms(roomsResponse.data);
         }
       } catch (error) {
-        console.error("Error loading user data:", error);
+        console.error("Error loading data:", error);
+        toast.error("Failed to load profile data");
+      } finally {
+        setIsLoadingData(false);
       }
     };
 
-    loadUserData();
-  }, [setUser]);
+    loadData();
+  }, [setUser, setRooms]);
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files?.[0];
@@ -88,30 +93,18 @@ export default function ProfilePage() {
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("profilePicture", selectedFile);
-
-      const token = localStorage.getItem("authToken");
-      const response = await fetch("/api/users/upload-profile-picture", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const data = await uploadProfilePicture(selectedFile);
+      
+      if (data.success && data.user) {
         setUser(data.user);
         setSelectedFile(null);
         toast.success("Profile picture updated successfully!");
       } else {
-        toast.error(data.message || "Failed to upload profile picture");
+        toast.error("Failed to upload profile picture");
       }
     } catch (error) {
       console.error("Error uploading profile picture:", error);
-      toast.error("Error uploading profile picture");
+      toast.error(error.message || "Error uploading profile picture");
     } finally {
       setIsUploading(false);
     }
@@ -122,13 +115,13 @@ export default function ProfilePage() {
     toast.success("Room deleted successfully!");
   };
 
-  const handleView = (selectedRoom) => {
-    setSelectedRoom(selectedRoom);
+  const handleView = (room) => {
+    setSelectedRoom(room);
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (selectedRoom) => {
-    setEditForm(selectedRoom);
+  const handleEdit = (room) => {
+    setEditForm(room);
     setIsEditModalOpen(true);
   };
 
@@ -143,6 +136,14 @@ export default function ProfilePage() {
     toast.success("Room updated successfully!");
     setIsEditModalOpen(false);
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="mt-20 flex items-center justify-center min-h-screen">
+        <Typography variant="h2">Loading profile...</Typography>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-20">
@@ -244,7 +245,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
               {userRooms.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id || item.id}
                   className="relative bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition"
                 >
                   {/* Room Image */}
@@ -252,7 +253,7 @@ export default function ProfilePage() {
                     {item.images && item.images.length > 0 ? (
                       <Image
                         src={item.images[0]}
-                        alt={item.title}
+                        alt={item.roomTitle}
                         width={600}
                         height={400}
                         className="w-full h-56 object-cover"
@@ -267,13 +268,13 @@ export default function ProfilePage() {
                   {/* Room Details */}
                   <div className="m-5">
                     <Typography variant="h4" className="mb-2 block">
-                      {item.title}
+                      {item.roomTitle}
                     </Typography>
                     <Typography variant="paraSecondary" className="mb-2 block">
                       {item.location}
                     </Typography>
                     <Typography variant="paraPrimary" className="mb-3 block">
-                      ₹{item.price}/month • {item.roomType}
+                      ₹{item.price}/month • {item.type}
                     </Typography>
 
                     {/* CRUD Buttons */}
@@ -293,7 +294,7 @@ export default function ProfilePage() {
                       </Button>
 
                       <Button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item._id || item.id)}
                         className="bg-red-500 text-white text-sm hover:bg-red-600"
                       >
                         Delete
@@ -332,7 +333,7 @@ export default function ProfilePage() {
                     {selectedRoom.images && selectedRoom.images.length > 0 ? (
                       <Image
                         src={selectedRoom.images[0]}
-                        alt={selectedRoom.title}
+                        alt={selectedRoom.roomTitle}
                         width={1400}
                         height={700}
                         className="object-cover w-full h-full rounded-2xl"
@@ -351,7 +352,7 @@ export default function ProfilePage() {
                         variant="h1"
                         className="text-3xl md:text-4xl font-semibold"
                       >
-                        {selectedRoom.title}
+                        {selectedRoom.roomTitle}
                       </Typography>
 
                       <div className="flex items-center text-gray-600 mt-2 text-lg">
@@ -363,7 +364,7 @@ export default function ProfilePage() {
                         variant="paraSecondary"
                         className="mt-1 text-blue-600"
                       >
-                        {selectedRoom.roomType}
+                        {selectedRoom.type}
                       </Typography>
                     </div>
 
@@ -386,7 +387,7 @@ export default function ProfilePage() {
                           🛏️ {selectedRoom.beds} Bed
                         </span>
                         <span className="flex items-center gap-2">
-                          🛁 {selectedRoom.baths} Bath
+                          🛁 {selectedRoom.bathrooms} Bath
                         </span>
 
                         {selectedRoom.amenities?.map((item, i) => (
@@ -408,11 +409,11 @@ export default function ProfilePage() {
                     {/* Owner Rules */}
                     <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-md">
                       <Typography variant="h4" className="font-semibold block">
-                        Owner Rules & Requirements
+                        Owner Requirements
                       </Typography>
                       <Typography variant="paraPrimary" className="mt-1">
-                        {selectedRoom.ownerDemands ||
-                          "No specific rules provided by the owner."}
+                        {selectedRoom.ownerRequirements ||
+                          "No specific requirements provided."}
                       </Typography>
                     </div>
 
@@ -425,7 +426,7 @@ export default function ProfilePage() {
                         Contact Information
                       </Typography>
                       <Typography variant="paraHighLight">
-                        Call Owner : +91 {selectedRoom.contact}
+                        Contact: {selectedRoom.contactNumber}
                       </Typography>
                     </div>
                   </div>
@@ -464,8 +465,8 @@ export default function ProfilePage() {
                 <div>
                   <Typography variant="h3">Title</Typography>
                   <input
-                    name="title"
-                    value={editForm.title || ""}
+                    name="roomTitle"
+                    value={editForm.roomTitle || ""}
                     onChange={handleEditChange}
                     placeholder="Room title"
                     className="w-full border border-gray-300 rounded-lg p-3 bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
