@@ -27,7 +27,7 @@ export default function Header2() {
   };
 
   const menuItem = [
-    { name: "Home", href: NAVIGATION_ROUTES.HOME },
+   { name: "Home", href: "/uipage2" },
     { name: "Rooms", href: "#rooms" },
     { name: "About", href: "#about" },
     { name: "Contact", href: "#contact" },
