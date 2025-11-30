@@ -23,7 +23,7 @@ export default function ProfilePage() {
   // Profile picture upload states
   const [profilePicturePreview, setProfilePicturePreview] = useState(user?.profilePicture || null);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   
   // Filter rooms by current user
   const userRooms = rooms.filter((room) => room.userId === user?.id);
@@ -54,7 +54,7 @@ export default function ProfilePage() {
     loadUserData();
   }, [setUser]);
 
-  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -75,7 +75,7 @@ export default function ProfilePage() {
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
-      setProfilePicturePreview(reader.result as string);
+      setProfilePicturePreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -117,27 +117,27 @@ export default function ProfilePage() {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id) => {
     deleteRoom(id);
     toast.success("Room deleted successfully!");
   };
 
-  const handleView = (selectedRoom: any) => {
+  const handleView = (selectedRoom) => {
     setSelectedRoom(selectedRoom);
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (selectedRoom: any) => {
+  const handleEdit = (selectedRoom) => {
     setEditForm(selectedRoom);
     setIsEditModalOpen(true);
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = (e) => {
     e.preventDefault();
     updateRoom(editForm);
     toast.success("Room updated successfully!");
@@ -389,7 +389,7 @@ export default function ProfilePage() {
                           🛁 {selectedRoom.baths} Bath
                         </span>
 
-                        {selectedRoom.amenities?.map((item: string, i: number) => (
+                        {selectedRoom.amenities?.map((item, i) => (
                           <span key={i} className="flex items-center gap-2">
                             ✅ {item}
                           </span>
@@ -502,7 +502,7 @@ export default function ProfilePage() {
                     value={editForm.description || ""}
                     onChange={handleEditChange}
                     placeholder="Room description"
-                    rows={3}
+                    rows="3"
                     className="w-full border border-gray-300 rounded-lg p-3 bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
