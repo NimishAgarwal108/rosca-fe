@@ -71,14 +71,22 @@ function LoginContent() {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("userLoggedIn", "true");
 
-        // Check if user has selected a type
-        if (response.user.userType) {
-          // User has a type, go to UIPAGE
+        // IMPORTANT: Check userType and redirect accordingly
+        if (response.user.userType === "user") {
+          // Regular user - redirect to uipage2 with Header2
+          console.log("✅ User type: USER - Redirecting to /uipage2");
+          setTimeout(() => {
+            window.location.href = "/uipage2";
+          }, 800);
+        } else if (response.user.userType === "host") {
+          // Host - redirect to uipage with original Header
+          console.log("✅ User type: HOST - Redirecting to UIPAGE");
           setTimeout(() => {
             window.location.href = NAVIGATION_ROUTES.UIPAGE;
           }, 800);
         } else {
-          // User doesn't have a type yet, go to user-type selection
+          // No userType set - redirect to user-type selection page
+          console.log("⚠️ No userType - Redirecting to user-type selection");
           setTimeout(() => {
             window.location.href = NAVIGATION_ROUTES.USER_TYPE;
           }, 800);
