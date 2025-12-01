@@ -12,119 +12,74 @@ import { toast } from "sonner";
 import { NAVIGATION_ROUTES } from "../../constant";
 import { getCurrentUserInfo, uploadProfilePicture, getUserRooms } from "@/lib/API/userApi";
 import { deleteRoom as deleteRoomApi } from "@/lib/API/roomApi";
+import ViewRoomModal from "@/components/custom/view-room-modal";
+import EditRoomModal from "@/components/custom/edit-room-modal";
 
 export default function ProfilePage() {
   const { rooms, setRooms, updateRoom: updateRoomStore } = useRoomStore();
   const { user, setUser } = useAuthStore();
-  
+
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({});
-  
-  // Profile picture upload states
+
   const [profilePicturePreview, setProfilePicturePreview] = useState(user?.profilePicture || null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  
-  // Filter rooms by current user
+
   const userRooms = rooms.filter((room) => room.userId === user?.id);
 
-  // Load user data and rooms on mount
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoadingData(true);
-        
-        console.log('🔄 Starting to load profile data...');
-        
-        // First check if we have a token
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-        
+        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
         if (!token) {
-          console.log('❌ No auth token found');
-          toast.error('Please log in to view your profile');
+          toast.error("Please log in to view your profile");
           setIsLoadingData(false);
           return;
         }
-        
-        console.log('✅ Auth token found, fetching user info...');
-        
-        // Load current user info
-        try {
-          const userResponse = await getCurrentUserInfo();
-          console.log('✅ User response:', userResponse);
-          
-          if (userResponse.user) {
-            setUser(userResponse.user);
-            setProfilePicturePreview(userResponse.user.profilePicture);
-            console.log('✅ User set:', userResponse.user);
-            
-            // Now load user's rooms
-            console.log('🏠 Loading user rooms...');
-            try {
-              const roomsResponse = await getUserRooms();
-              console.log('✅ Rooms response:', roomsResponse);
-              
-              // ✅ FIXED: Backend returns { success, count, rooms }
-              if (roomsResponse.success && roomsResponse.rooms && Array.isArray(roomsResponse.rooms)) {
-                setRooms(roomsResponse.rooms);
-                console.log('✅ Loaded user rooms:', roomsResponse.rooms.length);
-              } else {
-                console.log('⚠️ No rooms data in response');
-                setRooms([]);
-              }
-            } catch (roomError) {
-              console.error('❌ Error loading rooms:', roomError);
-              toast.error('Could not load your rooms');
-              setRooms([]);
-            }
+        const userResponse = await getCurrentUserInfo();
+        if (userResponse?.user) {
+          setUser(userResponse.user);
+          setProfilePicturePreview(userResponse.user.profilePicture);
+
+          const roomsResponse = await getUserRooms();
+          if (roomsResponse?.success && Array.isArray(roomsResponse.rooms)) {
+            setRooms(roomsResponse.rooms);
           } else {
-            console.log('❌ No user in response');
-            toast.error('Could not load user information');
+            setRooms([]);
           }
-        } catch (userError) {
-          console.error('❌ Error loading user:', userError);
-          toast.error('Could not load user information');
+        } else {
+          toast.error("Could not load user information");
         }
-        
       } catch (error) {
-        console.error("❌ Error in loadData:", error);
         toast.error(error.message || "Failed to load profile data");
       } finally {
-        console.log('✅ Finished loading data');
         setIsLoadingData(false);
       }
     };
-
     loadData();
-  }, []);
+  }, [setRooms, setUser]);
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
       toast.error("Please upload a valid image (JPG, PNG, WebP, or GIF)");
       return;
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image size must be less than 5MB");
       return;
     }
-
     setSelectedFile(file);
-    // Create preview
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePicturePreview(reader.result);
-    };
+    reader.onloadend = () => setProfilePicturePreview(reader.result);
     reader.readAsDataURL(file);
   };
 
@@ -133,11 +88,9 @@ export default function ProfilePage() {
       toast.error("Please select an image first");
       return;
     }
-
     setIsUploading(true);
     try {
       const data = await uploadProfilePicture(selectedFile);
-      
       if (data.success && data.user) {
         setUser(data.user);
         setProfilePicturePreview(data.user.profilePicture);
@@ -147,9 +100,7 @@ export default function ProfilePage() {
         toast.error("Failed to upload profile picture");
       }
     } catch (error) {
-      console.error("Error uploading profile picture:", error);
       toast.error(error.message || "Error uploading profile picture");
-      // Revert preview on error
       setProfilePicturePreview(user?.profilePicture || null);
       setSelectedFile(null);
     } finally {
@@ -162,22 +113,13 @@ export default function ProfilePage() {
       toast.error("Invalid room ID");
       return;
     }
-
-    // Confirm deletion
-    if (!confirm("Are you sure you want to delete this room?")) {
-      return;
-    }
-
+    if (!confirm("Are you sure you want to delete this room?")) return;
     setIsDeleting(true);
     try {
       await deleteRoomApi(id);
-      
-      // Remove from local state
-      setRooms(rooms.filter(room => (room._id || room.id) !== id));
-      
+      setRooms((prev) => prev.filter((room) => (room._id || room.id) !== id));
       toast.success("Room deleted successfully!");
     } catch (error) {
-      console.error("Error deleting room:", error);
       toast.error(error.message || "Failed to delete room");
     } finally {
       setIsDeleting(false);
@@ -201,30 +143,21 @@ export default function ProfilePage() {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      // Call API to update room
       const { updateRoom } = await import("@/lib/API/roomApi");
       await updateRoom(editForm._id || editForm.id, editForm);
-      
-      // Update local state
       updateRoomStore(editForm);
-      
       toast.success("Room updated successfully!");
       setIsEditModalOpen(false);
-      
-      // Reload rooms to get latest data
       const roomsResponse = await getUserRooms();
       if (roomsResponse.success && roomsResponse.rooms) {
         setRooms(roomsResponse.rooms);
       }
     } catch (error) {
-      console.error("Error updating room:", error);
       toast.error(error.message || "Failed to update room");
     }
   };
 
-  // Show loading state
   if (isLoadingData) {
     return (
       <div className="mt-20 flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -236,15 +169,12 @@ export default function ProfilePage() {
             </div>
           </div>
           <Typography variant="h2" className="text-gray-800 font-bold">Loading your profile</Typography>
-          <Typography variant="paraSecondary" className="text-gray-500 mt-2">
-            Fetching your rooms and data...
-          </Typography>
+          <Typography variant="paraSecondary" className="text-gray-500 mt-2">Fetching your rooms and data...</Typography>
         </div>
       </div>
     );
   }
 
-  // Show login prompt if no user
   if (!user) {
     return (
       <div className="mt-20 flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -267,21 +197,17 @@ export default function ProfilePage() {
   return (
     <div className="mt-20 bg-gradient-to-br from-gray-50 via-white to-indigo-50 min-h-screen">
       <main className="flex flex-col items-center justify-center">
-        {/* Hero Section - Modern Gradient Design */}
         <section
           id="profile-hero"
           className="relative w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white overflow-hidden"
         >
           <BackArrow />
-          
-          {/* Animated background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
           </div>
 
           <div className="relative z-10 flex flex-col items-center text-center gap-4 py-16 px-6">
-            {/* Profile Picture with Glow Effect */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-pink-400 rounded-full blur-xl opacity-75 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
@@ -298,8 +224,6 @@ export default function ProfilePage() {
                   <span className="text-6xl">👤</span>
                 )}
               </div>
-              
-              {/* Camera Button with Pulse Animation */}
               <label className="absolute bottom-1 right-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center cursor-pointer shadow-lg transition-all transform hover:scale-110 active:scale-95">
                 <span className="text-xl">📷</span>
                 <input
@@ -312,7 +236,6 @@ export default function ProfilePage() {
               </label>
             </div>
 
-            {/* Upload Button with Animation */}
             {selectedFile && (
               <Button
                 onClick={handleUploadProfilePicture}
@@ -325,14 +248,11 @@ export default function ProfilePage() {
                     Uploading...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    ✨ Save Picture
-                  </span>
+                  <span className="flex items-center gap-2">✨ Save Picture</span>
                 )}
               </Button>
             )}
 
-            {/* User Info with Better Typography */}
             <div className="mt-4 space-y-2">
               <Typography
                 variant="h2"
@@ -366,7 +286,6 @@ export default function ProfilePage() {
               Manage your properties and connect with tenants
             </Typography>
 
-            {/* Add Room Button with Icon */}
             <Link href={NAVIGATION_ROUTES.ADD_ROOM}>
               <Button className="mt-4 bg-white text-indigo-600 font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all flex items-center gap-2 text-base">
                 <span className="text-xl">+</span> Add New Property
@@ -375,7 +294,6 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* Stats Section */}
         <section className="w-full max-w-6xl px-6 -mt-8 relative z-20">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
@@ -384,46 +302,35 @@ export default function ProfilePage() {
                 <Typography variant="h3" className="text-3xl font-bold text-indigo-600 mb-1">
                   {userRooms.length}
                 </Typography>
-                <Typography variant="paraSecondary" className="text-gray-600">
-                  Total Properties
-                </Typography>
+                <Typography variant="paraSecondary" className="text-gray-600">Total Properties</Typography>
               </div>
-              
               <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50">
                 <div className="text-4xl mb-2">✅</div>
                 <Typography variant="h3" className="text-3xl font-bold text-green-600 mb-1">
                   {userRooms.length}
                 </Typography>
-                <Typography variant="paraSecondary" className="text-gray-600">
-                  Active Listings
-                </Typography>
+                <Typography variant="paraSecondary" className="text-gray-600">Active Listings</Typography>
               </div>
-              
               <div className="p-6 rounded-xl bg-gradient-to-br from-orange-50 to-yellow-50">
                 <div className="text-4xl mb-2">👁️</div>
                 <Typography variant="h3" className="text-3xl font-bold text-orange-600 mb-1">
                   {userRooms.reduce((acc, room) => acc + (room.views || 0), 0)}
                 </Typography>
-                <Typography variant="paraSecondary" className="text-gray-600">
-                  Total Views
-                </Typography>
+                <Typography variant="paraSecondary" className="text-gray-600">Total Views</Typography>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Rooms Listing Section */}
         <section id="rooms" className="w-full max-w-6xl py-16 px-6">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <Typography variant="h1" className="text-4xl font-bold text-gray-800 mb-2">
-                My Properties
-              </Typography>
+              <Typography variant="h1" className="text-4xl font-bold text-gray-800 mb-2">My Properties</Typography>
               <Typography variant="paraSecondary" className="text-gray-600">
                 Manage and edit your room listings
               </Typography>
             </div>
-            
+
             {userRooms.length > 0 && (
               <Link href={NAVIGATION_ROUTES.ADD_ROOM}>
                 <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
@@ -440,7 +347,6 @@ export default function ProfilePage() {
                   key={item._id || item.id}
                   className="group relative bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2 border border-gray-100"
                 >
-                  {/* Room Image with Overlay */}
                   <div className="relative h-56 overflow-hidden">
                     {item.images && item.images.length > 0 ? (
                       <>
@@ -458,8 +364,7 @@ export default function ProfilePage() {
                         <span className="text-5xl">🏠</span>
                       </div>
                     )}
-                    
-                    {/* Type Badge */}
+
                     <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
                       <Typography variant="paraSecondary" className="text-xs font-semibold text-indigo-600 capitalize">
                         {item.type}
@@ -467,12 +372,11 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Room Details */}
                   <div className="p-6">
                     <Typography variant="h4" className="mb-3 block font-bold text-gray-800 line-clamp-1">
                       {item.roomTitle}
                     </Typography>
-                    
+
                     <div className="space-y-2 mb-4">
                       <Typography variant="paraSecondary" className="flex items-center gap-2 text-gray-600">
                         <span>📍</span> {item.location}
@@ -481,16 +385,11 @@ export default function ProfilePage() {
                         <span>💰</span> ₹{item.price.toLocaleString()}/month
                       </Typography>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          🛏️ {item.beds} Beds
-                        </span>
-                        <span className="flex items-center gap-1">
-                          🚿 {item.bathrooms} Baths
-                        </span>
+                        <span className="flex items-center gap-1">🛏️ {item.beds} Beds</span>
+                        <span className="flex items-center gap-1">🚿 {item.bathrooms} Baths</span>
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex gap-2 mt-4">
                       <Button
                         onClick={() => handleView(item)}
@@ -521,10 +420,7 @@ export default function ProfilePage() {
           ) : (
             <div className="text-center mt-12 bg-white p-16 rounded-3xl shadow-xl border border-gray-100">
               <div className="text-8xl mb-6 animate-bounce">🏠</div>
-              <Typography
-                variant="h2"
-                className="text-gray-800 mb-4 text-3xl font-bold"
-              >
+              <Typography variant="h2" className="text-gray-800 mb-4 text-3xl font-bold">
                 No Properties Yet
               </Typography>
               <Typography variant="paraPrimary" className="text-gray-600 mb-8 text-lg max-w-md mx-auto">
@@ -539,6 +435,23 @@ export default function ProfilePage() {
           )}
         </section>
       </main>
+
+      {/* Modal Components */}
+      <ViewRoomModal
+        room={selectedRoom}
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+      />
+
+      <EditRoomModal
+        room={editForm}
+        formData={editForm}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onChange={handleEditChange}
+        onSubmit={handleEditSubmit}
+      />
+
       <Footer />
     </div>
   );
