@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const userRooms = rooms.filter((room) => room.userId === user?.id);
 
@@ -143,6 +144,7 @@ export default function ProfilePage() {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    setIsUpdating(true);
     try {
       const { updateRoom } = await import("@/lib/API/roomApi");
       await updateRoom(editForm._id || editForm.id, editForm);
@@ -155,6 +157,8 @@ export default function ProfilePage() {
       }
     } catch (error) {
       toast.error(error.message || "Failed to update room");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -450,6 +454,7 @@ export default function ProfilePage() {
         onClose={() => setIsEditModalOpen(false)}
         onChange={handleEditChange}
         onSubmit={handleEditSubmit}
+        isSubmitting={isUpdating}
       />
 
       <Footer />

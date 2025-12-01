@@ -18,10 +18,10 @@ export const getImageUrl = (imagePath) => {
   return `${getServerBaseUrl()}${imagePath}`;
 };
 
-// ✅ FIXED: Helper function to get auth token (changed from 'token' to 'authToken')
+// ✅ Helper function to get auth token
 const getAuthToken = () => {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); // ✅ Changed from 'token' to 'authToken'
+    return localStorage.getItem('authToken');
   }
   return null;
 };
@@ -35,6 +35,7 @@ const getAuthHeaders = () => {
   };
 };
 
+// ✅ Get all rooms (public)
 export async function getAllRooms() {
   try {
     console.log("🔍 Fetching rooms from:", `${baseUrl}/rooms`);
@@ -42,7 +43,7 @@ export async function getAllRooms() {
     const response = await fetch(`${baseUrl}/rooms`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      cache: "no-store", // Disable caching for dynamic data
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -60,6 +61,7 @@ export async function getAllRooms() {
   }
 }
 
+// ✅ Get room by ID (for viewing details)
 export async function getRoomById(id) {
   try {
     console.log("🔍 Fetching room by ID:", id);
@@ -119,7 +121,7 @@ export async function getUserRooms() {
   }
 }
 
-// ✅ ENHANCED: Add room with detailed error logging
+// ✅ Add new room
 export async function addRoom(formData) {
   try {
     console.log("📤 ═══════════════════════════════════════");
@@ -133,7 +135,6 @@ export async function addRoom(formData) {
 
     const token = getAuthToken();
     console.log("🔑 Token found:", token ? "Yes ✅" : "No ❌");
-    console.log("🔑 Token preview:", token ? token.substring(0, 20) + "..." : "null");
 
     if (!token) {
       throw new Error("No authentication token found. Please login.");
@@ -149,7 +150,6 @@ export async function addRoom(formData) {
     });
 
     console.log("📥 Response status:", response.status);
-    console.log("📥 Response headers:", Object.fromEntries(response.headers.entries()));
 
     // Get the response text first to see what we're working with
     const responseText = await response.text();
@@ -166,29 +166,29 @@ export async function addRoom(formData) {
       console.error("❌ ═══════════════════════════════════════");
       console.error("❌ Server returned error status:", response.status);
       console.error("❌ Error details:", errorData);
-      console.error("❌ Full response:", responseText);
       console.error("❌ ═══════════════════════════════════════");
       
       throw new Error(errorData.message || `Server Error: ${response.status}`);
     }
 
     const data = JSON.parse(responseText);
-    console.log("✅ Success:", data);
+    console.log("✅ Room added successfully:", data);
     return data;
   } catch (error) {
     console.error("❌ ═══════════════════════════════════════");
-    console.error("❌ Add room error:", error);
-    console.error("❌ Error name:", error.name);
-    console.error("❌ Error message:", error.message);
-    console.error("❌ Error stack:", error.stack);
+    console.error("❌ Add room error:", error.message);
     console.error("❌ ═══════════════════════════════════════");
     throw error;
   }
 }
 
+// ✅ Update existing room (for Edit Modal)
 export async function updateRoom(id, roomData) {
   try {
-    console.log("🔄 Updating room:", id);
+    console.log("🔄 ═══════════════════════════════════════");
+    console.log("🔄 Updating room ID:", id);
+    console.log("🔄 Update data:", roomData);
+    
     const token = getAuthToken();
 
     if (!token) {
@@ -204,6 +204,8 @@ export async function updateRoom(id, roomData) {
       body: JSON.stringify(roomData),
     });
 
+    console.log("📥 Response status:", response.status);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("❌ Failed to update room:", errorData);
@@ -212,6 +214,7 @@ export async function updateRoom(id, roomData) {
 
     const data = await response.json();
     console.log("✅ Room updated successfully:", data);
+    console.log("🔄 ═══════════════════════════════════════");
     return data;
   } catch (error) {
     console.error("❌ Update room error:", error);
@@ -219,9 +222,51 @@ export async function updateRoom(id, roomData) {
   }
 }
 
+// ✅ Update room with images (alternative method if images need to be updated)
+export async function updateRoomWithImages(id, formData) {
+  try {
+    console.log("🔄 Updating room with images, ID:", id);
+    const token = getAuthToken();
+
+    if (!token) {
+      throw new Error("No authentication token found. Please login.");
+    }
+
+    // Log FormData contents
+    for (let pair of formData.entries()) {
+      console.log("📤 Update field:", pair[0], ":", pair[1]);
+    }
+
+    const response = await fetch(`${baseUrl}/rooms/${id}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`
+        // DO NOT set Content-Type for FormData
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("❌ Failed to update room with images:", errorData);
+      throw new Error(errorData.message || "Failed to update room");
+    }
+
+    const data = await response.json();
+    console.log("✅ Room with images updated successfully:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ Update room with images error:", error);
+    throw error;
+  }
+}
+
+// ✅ Delete room
 export async function deleteRoom(id) {
   try {
-    console.log("🗑 Deleting room:", id);
+    console.log("🗑 ═══════════════════════════════════════");
+    console.log("🗑 Deleting room ID:", id);
+    
     const token = getAuthToken();
 
     if (!token) {
@@ -236,6 +281,8 @@ export async function deleteRoom(id) {
       },
     });
 
+    console.log("📥 Response status:", response.status);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("❌ Failed to delete room:", errorData);
@@ -244,9 +291,36 @@ export async function deleteRoom(id) {
 
     const data = await response.json();
     console.log("✅ Room deleted successfully:", data);
+    console.log("🗑 ═══════════════════════════════════════");
     return data;
   } catch (error) {
     console.error("❌ Delete room error:", error);
+    throw error;
+  }
+}
+
+// ✅ Search/Filter rooms (optional - if you want search functionality)
+export async function searchRooms(query) {
+  try {
+    console.log("🔎 Searching rooms with query:", query);
+
+    const params = new URLSearchParams(query);
+    const response = await fetch(`${baseUrl}/rooms?${params.toString()}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Failed to search rooms");
+    }
+
+    const data = await response.json();
+    console.log("✅ Search results:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ Search rooms error:", error);
     throw error;
   }
 }
