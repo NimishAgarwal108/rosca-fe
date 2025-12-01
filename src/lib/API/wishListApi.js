@@ -1,6 +1,5 @@
-// lib/API/wishlistApi.js (or wishlistApi.ts if using TypeScript)
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+// lib/API/wishlistApi.js
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
 
 /**
  * Get authentication token from localStorage
