@@ -38,31 +38,68 @@ export default function ProfilePage() {
       try {
         setIsLoadingData(true);
         
+        console.log('🔄 Starting to load profile data...');
+        
+        // First check if we have a token
+        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+        
+        if (!token) {
+          console.log('❌ No auth token found');
+          toast.error('Please log in to view your profile');
+          setIsLoadingData(false);
+          return;
+        }
+        
+        console.log('✅ Auth token found, fetching user info...');
+        
         // Load current user info
-        const userResponse = await getCurrentUserInfo();
-        if (userResponse.user) {
-          setUser(userResponse.user);
-          setProfilePicturePreview(userResponse.user.profilePicture);
+        try {
+          const userResponse = await getCurrentUserInfo();
+          console.log('✅ User response:', userResponse);
+          
+          if (userResponse.user) {
+            setUser(userResponse.user);
+            setProfilePicturePreview(userResponse.user.profilePicture);
+            console.log('✅ User set:', userResponse.user);
+            
+            // Now load user's rooms
+            console.log('🏠 Loading user rooms...');
+            try {
+              const roomsResponse = await getUserRooms();
+              console.log('✅ Rooms response:', roomsResponse);
+              
+              if (roomsResponse.success && roomsResponse.data && Array.isArray(roomsResponse.data)) {
+                setRooms(roomsResponse.data);
+                console.log('✅ Loaded user rooms:', roomsResponse.data.length);
+              } else {
+                console.log('⚠️ No rooms data in response');
+                setRooms([]);
+              }
+            } catch (roomError) {
+              console.error('❌ Error loading rooms:', roomError);
+              toast.error('Could not load your rooms');
+              setRooms([]);
+            }
+          } else {
+            console.log('❌ No user in response');
+            toast.error('Could not load user information');
+          }
+        } catch (userError) {
+          console.error('❌ Error loading user:', userError);
+          toast.error('Could not load user information');
         }
-
-        // Load user's rooms - FIXED: Handle normalized response structure
-        const roomsResponse = await getUserRooms();
-        if (roomsResponse.success && roomsResponse.data && Array.isArray(roomsResponse.data)) {
-          setRooms(roomsResponse.data);
-          console.log('✅ Loaded user rooms:', roomsResponse.data.length);
-        }
+        
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("❌ Error in loadData:", error);
         toast.error(error.message || "Failed to load profile data");
       } finally {
+        console.log('✅ Finished loading data');
         setIsLoadingData(false);
       }
     };
 
-    if (user?.id) {
-      loadData();
-    }
-  }, [user?.id, setUser, setRooms]);
+    loadData();
+  }, []); // Empty dependency array - run once on mount
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files?.[0];
@@ -186,24 +223,35 @@ export default function ProfilePage() {
     }
   };
 
+  // Show loading state
   if (isLoadingData) {
     return (
-      <div className="mt-20 flex items-center justify-center min-h-screen">
+      <div className="mt-20 flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <Typography variant="h2">Loading profile...</Typography>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
+          <Typography variant="h2" className="text-gray-700">Loading profile...</Typography>
+          <Typography variant="paraSecondary" className="text-gray-500 mt-2">
+            Please wait while we fetch your data
+          </Typography>
         </div>
       </div>
     );
   }
 
+  // Show login prompt if no user
   if (!user) {
     return (
-      <div className="mt-20 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Typography variant="h2" className="mb-4">Please log in to view your profile</Typography>
+      <div className="mt-20 flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center bg-white p-10 rounded-2xl shadow-lg">
+          <div className="text-6xl mb-4">🔒</div>
+          <Typography variant="h2" className="mb-4 text-gray-800">Authentication Required</Typography>
+          <Typography variant="paraPrimary" className="mb-6 text-gray-600">
+            Please log in to view your profile and manage your rooms
+          </Typography>
           <Link href={NAVIGATION_ROUTES.LOGIN}>
-            <Button>Go to Login</Button>
+            <Button className="bg-indigo-600 text-white hover:bg-indigo-700 px-8 py-3">
+              Go to Login
+            </Button>
           </Link>
         </div>
       </div>
@@ -382,15 +430,19 @@ export default function ProfilePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center mt-12">
+            <div className="text-center mt-12 bg-white p-10 rounded-2xl shadow-md">
+              <div className="text-6xl mb-4">🏠</div>
               <Typography
                 variant="paraHighLight"
-                className="text-gray-600 mb-4"
+                className="text-gray-600 mb-4 text-lg"
               >
                 You haven't added any rooms yet.
               </Typography>
+              <Typography variant="paraPrimary" className="text-gray-500 mb-6">
+                Start by adding your first property to get started!
+              </Typography>
               <Link href={NAVIGATION_ROUTES.ADD_ROOM}>
-                <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+                <Button className="bg-indigo-600 text-white hover:bg-indigo-700 px-8 py-3">
                   Add Your First Room
                 </Button>
               </Link>
@@ -398,241 +450,7 @@ export default function ProfilePage() {
           )}
         </section>
 
-        {/* VIEW MODAL */}
-        {isViewModalOpen && selectedRoom && (
-          <div className="fixed rounded-3xl flex items-center justify-center inset-0 bg-black/40 backdrop-blur-sm z-50 p-4">
-            <main className="relative bg-gray-200 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto shadow-xl p-6">
-              <button
-                onClick={() => setIsViewModalOpen(false)}
-                className="absolute top-4 right-4 text-2xl text-gray-700 hover:text-red-500 transition cursor-pointer z-10 bg-white rounded-full w-10 h-10 flex items-center justify-center"
-                aria-label="Close"
-              >
-                ❌
-              </button>
-
-              <section className="px-4 py-6 md:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  {/* Room Image */}
-                  <div className="overflow-hidden rounded-2xl shadow-lg h-full min-h-[400px] relative">
-                    {selectedRoom.images && selectedRoom.images.length > 0 ? (
-                      <Image
-                        src={selectedRoom.images[0]}
-                        alt={selectedRoom.roomTitle}
-                        fill
-                        className="object-cover rounded-2xl"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-300 rounded-2xl flex items-center justify-center">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Room Details */}
-                  <div className="flex flex-col justify-between gap-6">
-                    <div>
-                      <Typography
-                        variant="h1"
-                        className="text-3xl md:text-4xl font-semibold"
-                      >
-                        {selectedRoom.roomTitle}
-                      </Typography>
-
-                      <div className="flex items-center text-gray-600 mt-2 text-lg">
-                        <span className="mr-2">📍</span>
-                        <span>{selectedRoom.location}</span>
-                      </div>
-
-                      <Typography
-                        variant="paraSecondary"
-                        className="mt-1 text-blue-600 capitalize"
-                      >
-                        {selectedRoom.type}
-                      </Typography>
-                    </div>
-
-                    <Typography variant="paraPrimary">
-                      {selectedRoom.description ||
-                        "A clean, comfortable and affordable stay with essential amenities."}
-                    </Typography>
-
-                    {/* Amenities */}
-                    <div className="bg-gray-50 rounded-xl p-5 shadow-sm">
-                      <Typography
-                        variant="h2"
-                        className="text-xl font-semibold mb-3"
-                      >
-                        Amenities
-                      </Typography>
-
-                      <div className="flex flex-wrap gap-4 text-gray-700 text-lg">
-                        <span className="flex items-center gap-2">
-                          🛏️ {selectedRoom.beds} Bed{selectedRoom.beds > 1 ? 's' : ''}
-                        </span>
-                        <span className="flex items-center gap-2">
-                          🛁 {selectedRoom.bathrooms} Bath{selectedRoom.bathrooms > 1 ? 's' : ''}
-                        </span>
-
-                        {selectedRoom.amenities?.map((item, i) => (
-                          <span key={i} className="flex items-center gap-2 capitalize">
-                            ✅ {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <Typography
-                      variant="paraHighLight"
-                      className="text-2xl font-bold inline-block"
-                    >
-                      ₹{selectedRoom.price} / month
-                    </Typography>
-
-                    {/* Owner Rules */}
-                    {selectedRoom.ownerRequirements && (
-                      <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-md">
-                        <Typography variant="h4" className="font-semibold block">
-                          Owner Requirements
-                        </Typography>
-                        <Typography variant="paraPrimary" className="mt-1">
-                          {selectedRoom.ownerRequirements}
-                        </Typography>
-                      </div>
-                    )}
-
-                    {/* Contact Section */}
-                    <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 border">
-                      <Typography
-                        variant="h3"
-                        className="text-xl font-semibold"
-                      >
-                        Contact Information
-                      </Typography>
-                      <Typography variant="paraHighLight">
-                        📞 {selectedRoom.contactNumber}
-                      </Typography>
-                      <Typography variant="paraPrimary" className="text-sm text-gray-600">
-                        Owner: {selectedRoom.ownerName}
-                      </Typography>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </main>
-          </div>
-        )}
-
-        {/* EDIT MODAL */}
-        {isEditModalOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <form
-              onSubmit={handleEditSubmit}
-              className="w-full max-w-lg bg-white/90 backdrop-blur-md border border-black/30 rounded-2xl shadow-2xl p-8 mx-4 relative max-h-[90vh] overflow-y-auto"
-            >
-              <button
-                type="button"
-                onClick={() => setIsEditModalOpen(false)}
-                className="absolute top-3 right-3 text-gray-700 hover:text-red-500 text-2xl cursor-pointer bg-white rounded-full w-10 h-10 flex items-center justify-center"
-              >
-                ❌
-              </button>
-
-              <div className="flex justify-center">
-                <Typography
-                  variant="h4"
-                  className="text-center text-gray-800 mb-6 font-semibold"
-                >
-                  Edit Room Details
-                </Typography>
-              </div>
-
-              {/* Input Fields */}
-              <div className="space-y-4">
-                <div>
-                  <Typography variant="h3" className="mb-2">Title</Typography>
-                  <input
-                    name="roomTitle"
-                    value={editForm.roomTitle || ""}
-                    onChange={handleEditChange}
-                    placeholder="Room title"
-                    required
-                    className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-
-                <div>
-                  <Typography variant="h3" className="mb-2">Location</Typography>
-                  <input
-                    name="location"
-                    value={editForm.location || ""}
-                    onChange={handleEditChange}
-                    placeholder="Room location"
-                    required
-                    className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-
-                <div>
-                  <Typography variant="h3" className="mb-2">Price (₹/month)</Typography>
-                  <input
-                    name="price"
-                    type="number"
-                    value={editForm.price || ""}
-                    onChange={handleEditChange}
-                    placeholder="Price per month"
-                    required
-                    min="0"
-                    className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-
-                <div>
-                  <Typography variant="h3" className="mb-2">Description</Typography>
-                  <textarea
-                    name="description"
-                    value={editForm.description || ""}
-                    onChange={handleEditChange}
-                    placeholder="Room description"
-                    rows="4"
-                    className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-
-                <div>
-                  <Typography variant="h3" className="mb-2">Owner Requirements</Typography>
-                  <textarea
-                    name="ownerRequirements"
-                    value={editForm.ownerRequirements || ""}
-                    onChange={handleEditChange}
-                    placeholder="Any specific requirements..."
-                    rows="3"
-                    className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        
       </main>
       <Footer />
     </div>
