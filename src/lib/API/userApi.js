@@ -68,7 +68,7 @@ export const uploadProfilePicture = async (file) => {
       {
         headers: {
           'Authorization': `Bearer ${token}`,
-          // Don't set Content-Type, let axios handle it for FormData
+          'Content-Type': 'multipart/form-data',
         },
       }
     );
@@ -131,14 +131,7 @@ export const getUserRooms = async () => {
     const response = await instance.get('/rooms/user/my-rooms');
 
     console.log('✅ User rooms fetched:', response.data);
-    
-    // Backend returns { success, count, rooms }
-    // Normalize to { success, data: rooms, count }
-    return {
-      success: response.data.success,
-      data: response.data.rooms || [],
-      count: response.data.count || 0
-    };
+    return response.data;
   } catch (error) {
     console.error('❌ Error fetching user rooms:', error);
     throw new Error(error.response?.data?.message || 'Failed to fetch user rooms');
