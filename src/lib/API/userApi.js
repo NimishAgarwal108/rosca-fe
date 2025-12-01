@@ -25,7 +25,6 @@ const createAuthInstance = () => {
 
 /**
  * Signup new user - public endpoint
- * @param {object} userData
  */
 export const signupUser = async (userData) => {
   try {
@@ -45,7 +44,6 @@ export const signupUser = async (userData) => {
 
 /**
  * Login user - public endpoint
- * @param {object} credentials
  */
 export const loginUser = async (credentials) => {
   try {
@@ -80,8 +78,23 @@ export const getCurrentUserInfo = async () => {
 };
 
 /**
+ * Get user's rooms - protected endpoint (HOST PROFILE)
+ */
+export const getUserRooms = async () => {
+  try {
+    console.log('🏠 Fetching user rooms...');
+    const instance = createAuthInstance();
+    const response = await instance.get('/rooms/user/my-rooms');
+    console.log('✅ User rooms fetched:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching user rooms:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch user rooms');
+  }
+};
+
+/**
  * Upload profile picture - protected endpoint
- * @param {File} file - Image file to upload
  */
 export const uploadProfilePicture = async (file) => {
   try {
@@ -123,7 +136,6 @@ export const uploadProfilePicture = async (file) => {
 
 /**
  * Update user type (host/user) - protected endpoint
- * @param {string} userType - 'host' or 'user'
  */
 export const updateUserType = async (userType) => {
   try {
