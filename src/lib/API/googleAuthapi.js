@@ -42,7 +42,7 @@ export const handleGoogleCallback = async (token) => {
     localStorage.setItem('authToken', token);
     
     // Fetch user data from your backend using the token
-    const userResponse = await axios.get(`${API_BASE_URL}/user/me`, {
+    const userResponse = await axios.get(`${API_BASE_URL}/users/me`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
