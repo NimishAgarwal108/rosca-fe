@@ -1,4 +1,7 @@
-// components/custom/edit-room-modal.jsx
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 export default function EditRoomModal({ room, formData, isOpen, onClose, onChange, onSubmit }) {
   if (!room) return null;
 
@@ -69,6 +72,8 @@ export default function EditRoomModal({ room, formData, isOpen, onClose, onChang
                 <option value="apartment">Apartment</option>
                 <option value="house">House</option>
                 <option value="room">Room</option>
+                <option value="studio">Studio</option>
+                <option value="villa">Villa</option>
               </select>
             </div>
           </div>

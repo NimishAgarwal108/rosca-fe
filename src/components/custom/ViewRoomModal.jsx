@@ -1,4 +1,6 @@
-// components/custom/view-room-modal.jsx
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 export default function ViewRoomModal({ room, isOpen, onClose }) {
   if (!room) return null;
 
@@ -40,7 +42,7 @@ export default function ViewRoomModal({ room, isOpen, onClose }) {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Price</p>
                 <p className="font-semibold text-indigo-600 text-xl flex items-center gap-2">
-                  <span>💰</span> ₹{room.price.toLocaleString()}/month
+                  <span>💰</span> ₹{room.price?.toLocaleString()}/month
                 </p>
               </div>
 
@@ -74,7 +76,7 @@ export default function ViewRoomModal({ room, isOpen, onClose }) {
             </div>
           </div>
 
-          {/* Description if you have it */}
+          {/* Description */}
           {room.description && (
             <div>
               <p className="text-sm text-gray-500 mb-2">Description</p>
@@ -82,7 +84,7 @@ export default function ViewRoomModal({ room, isOpen, onClose }) {
             </div>
           )}
 
-          {/* All Images if multiple */}
+          {/* All Images */}
           {room.images && room.images.length > 1 && (
             <div>
               <p className="text-sm text-gray-500 mb-3">All Photos</p>
