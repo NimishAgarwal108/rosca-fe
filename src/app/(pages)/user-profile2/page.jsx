@@ -1,206 +1,322 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Header2 from "@/components/custom/header2";
-import Footer from "@/components/custom/footer";
 import { Typography } from "@/components/custom/typography";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, MapPin, Bed, Bath, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/Store/Profile-data";
+import BackArrow from "@/components/custom/back_arrow";
+import Footer from "@/components/custom/footer";
+import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { NAVIGATION_ROUTES } from "../../constant";
+import { getCurrentUserInfo, uploadProfilePicture } from "@/lib/API/userApi";
+import { Moon, Sun } from "lucide-react";
 
-export default function UserProfile2() {
-  const [wishlistRooms, setWishlistRooms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+export default function UserProfilePage() {
+  const { user, setUser } = useAuthStore();
+
+  const [profilePicturePreview, setProfilePicturePreview] = useState(user?.profilePicture || null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    // Check if user is logged in
-    if (typeof window !== "undefined") {
-      const isLoggedIn = localStorage.getItem("userLoggedIn");
-      if (isLoggedIn !== "true") {
-        router.push("/login");
-        return;
-      }
+    // Load saved theme
+    const savedTheme = localStorage.getItem("userTheme") || "light";
+    setTheme(savedTheme);
+    document.documentElement.classList.toggle("dark", savedTheme === "dark");
+  }, []);
 
-      // Fetch wishlist rooms from localStorage
-      const savedWishlist = localStorage.getItem("userWishlist");
-      if (savedWishlist) {
-        try {
-          setWishlistRooms(JSON.parse(savedWishlist));
-        } catch (error) {
-          console.error("Error parsing wishlist:", error);
-          setWishlistRooms([]);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoadingData(true);
+        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+        if (!token) {
+          toast.error("Please log in to view your profile");
+          setIsLoadingData(false);
+          return;
         }
+        const userResponse = await getCurrentUserInfo();
+        if (userResponse?.user) {
+          setUser(userResponse.user);
+          setProfilePicturePreview(userResponse.user.profilePicture);
+        } else {
+          toast.error("Could not load user information");
+        }
+      } catch (error) {
+        toast.error(error.message || "Failed to load profile data");
+      } finally {
+        setIsLoadingData(false);
       }
-      setLoading(false);
-    }
-  }, [router]);
+    };
+    loadData();
+  }, [setUser]);
 
-  const removeFromWishlist = (roomId) => {
-    const updatedWishlist = wishlistRooms.filter((room) => room.id !== roomId);
-    setWishlistRooms(updatedWishlist);
-    localStorage.setItem("userWishlist", JSON.stringify(updatedWishlist));
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a valid image (JPG, PNG, WebP, or GIF)");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setProfilePicturePreview(reader.result);
+    reader.readAsDataURL(file);
   };
 
-  const clearAllWishlist = () => {
-    if (window.confirm("Are you sure you want to clear all saved rooms?")) {
-      setWishlistRooms([]);
-      localStorage.removeItem("userWishlist");
+  const handleUploadProfilePicture = async () => {
+    if (!selectedFile) {
+      toast.error("Please select an image first");
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const data = await uploadProfilePicture(selectedFile);
+      if (data.success && data.user) {
+        setUser(data.user);
+        setProfilePicturePreview(data.user.profilePicture);
+        setSelectedFile(null);
+        toast.success("Profile picture updated successfully!");
+      } else {
+        toast.error("Failed to upload profile picture");
+      }
+    } catch (error) {
+      toast.error(error.message || "Error uploading profile picture");
+      setProfilePicturePreview(user?.profilePicture || null);
+      setSelectedFile(null);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  if (loading) {
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("userTheme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    toast.success(`${newTheme === "dark" ? "🌙 Dark" : "☀️ Light"} mode activated!`);
+  };
+
+  if (isLoadingData) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header2 />
-        <main className="max-w-7xl mx-auto px-6 py-24">
-          <div className="text-center py-12">
-            <Typography variant="body">Loading your wishlist...</Typography>
+      <div className="mt-20 flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-indigo-200 border-t-indigo-600 mx-auto mb-6"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-2xl">👤</div>
+            </div>
           </div>
-        </main>
+          <Typography variant="h2" className="text-gray-800 dark:text-gray-200 font-bold">Loading your profile</Typography>
+          <Typography variant="paraSecondary" className="text-gray-500 dark:text-gray-400 mt-2">Getting your information...</Typography>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="mt-20 flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950">
+        <div className="text-center bg-white dark:bg-gray-800 p-12 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 max-w-md">
+          <div className="text-7xl mb-6 animate-bounce">🔐</div>
+          <Typography variant="h2" className="mb-4 text-gray-800 dark:text-gray-200 font-bold">Welcome Back!</Typography>
+          <Typography variant="paraPrimary" className="mb-8 text-gray-600 dark:text-gray-400 leading-relaxed">
+            Sign in to access your profile and personalize your experience
+          </Typography>
+          <Link href={NAVIGATION_ROUTES.LOGIN}>
+            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 px-10 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              Sign In Now
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header2 />
-      
-      <main className="max-w-7xl mx-auto px-6 py-24">
-        {/* Header Section */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <Typography variant="h1" className="text-3xl font-bold mb-2">
-              My Wishlist
-            </Typography>
-            <Typography variant="body" className="text-gray-600">
-              {wishlistRooms.length} {wishlistRooms.length === 1 ? "room" : "rooms"} saved
-            </Typography>
+    <div className="mt-20 bg-gradient-to-br from-gray-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 min-h-screen transition-colors duration-300">
+      <main className="flex flex-col items-center justify-center">
+        <section
+          id="profile-hero"
+          className="relative w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 text-white overflow-hidden"
+        >
+          <BackArrow />
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
           </div>
-          
-          {wishlistRooms.length > 0 && (
-            <Button 
-              variant="outline" 
-              onClick={clearAllWishlist}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            >
-              Clear All
-            </Button>
-          )}
-        </div>
 
-        {/* Empty State */}
-        {wishlistRooms.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-lg shadow-sm">
-            <Heart className="w-20 h-20 mx-auto text-gray-300 mb-6" />
-            <Typography variant="h2" className="text-2xl font-semibold mb-3">
-              Your wishlist is empty
-            </Typography>
-            <Typography variant="body" className="text-gray-600 mb-6">
-              Start exploring and save rooms you like!
-            </Typography>
-            <Link href="/uipage2">
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Explore Rooms
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          // Wishlist Grid
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {wishlistRooms.map((room) => (
-              <Card 
-                key={room.id} 
-                className="overflow-hidden hover:shadow-xl transition-all duration-300 group"
-              >
-                <CardHeader className="p-0 relative">
-                  <img
-                    src={room.image || "/placeholder-room.jpg"}
-                    alt={room.title || "Room"}
-                    className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+          <div className="relative z-10 flex flex-col items-center text-center gap-6 py-20 px-6">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-pink-400 rounded-full blur-xl opacity-75 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                {profilePicturePreview ? (
+                  <Image
+                    src={profilePicturePreview}
+                    alt="User Profile"
+                    width={160}
+                    height={160}
+                    className="object-cover w-full h-full"
+                    unoptimized={profilePicturePreview.startsWith('data:')}
                   />
-                  <button
-                    onClick={() => removeFromWishlist(room.id)}
-                    className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
-                  >
-                    <Heart className="w-5 h-5 fill-red-500 text-red-500" />
-                  </button>
-                </CardHeader>
-                
-                <CardContent className="p-5">
-                  <CardTitle className="text-xl mb-3 line-clamp-1">
-                    {room.title || "Untitled Room"}
-                  </CardTitle>
-                  
-                  <div className="flex items-center text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <Typography variant="body" className="text-sm line-clamp-1">
-                      {room.location || "Location not specified"}
-                    </Typography>
-                  </div>
+                ) : (
+                  <span className="text-7xl">👤</span>
+                )}
+              </div>
+              <label className="absolute bottom-2 right-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center cursor-pointer shadow-lg transition-all transform hover:scale-110 active:scale-95">
+                <span className="text-2xl">📷</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleProfilePictureChange}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
 
-                  {/* Room Features */}
-                  <div className="flex gap-4 mb-4 text-gray-600">
-                    {room.bedrooms && (
-                      <div className="flex items-center">
-                        <Bed className="w-4 h-4 mr-1" />
-                        <Typography variant="body" className="text-sm">
-                          {room.bedrooms}
-                        </Typography>
-                      </div>
-                    )}
-                    {room.bathrooms && (
-                      <div className="flex items-center">
-                        <Bath className="w-4 h-4 mr-1" />
-                        <Typography variant="body" className="text-sm">
-                          {room.bathrooms}
-                        </Typography>
-                      </div>
-                    )}
-                    {room.area && (
-                      <div className="flex items-center">
-                        <Square className="w-4 h-4 mr-1" />
-                        <Typography variant="body" className="text-sm">
-                          {room.area} sqft
-                        </Typography>
-                      </div>
-                    )}
-                  </div>
+            {selectedFile && (
+              <Button
+                onClick={handleUploadProfilePicture}
+                disabled={isUploading}
+                className="bg-white text-indigo-600 font-semibold px-8 py-3 rounded-full hover:bg-gray-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isUploading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    Uploading...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">✨ Save Picture</span>
+                )}
+              </Button>
+            )}
 
-                  <div className="flex justify-between items-center pt-3 border-t">
-                    <div>
-                      <Typography variant="body" className="text-2xl font-bold text-blue-600">
-                        ${room.price || "N/A"}
-                      </Typography>
-                      <Typography variant="body" className="text-xs text-gray-500">
-                        per month
-                      </Typography>
-                    </div>
-                    <Link href={`/item-details/${room.id}`}>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+            <div className="mt-6 space-y-3">
+              <Typography
+                variant="h2"
+                className="font-bold tracking-tight text-5xl bg-gradient-to-r from-white to-gray-100 bg-clip-text"
+              >
+                {user?.firstName} {user?.lastName || ""}
+              </Typography>
 
-        {/* Additional Info Section */}
-        {wishlistRooms.length > 0 && (
-          <div className="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-100">
-            <Typography variant="h3" className="text-lg font-semibold mb-2">
-              💡 Pro Tip
-            </Typography>
-            <Typography variant="body" className="text-gray-700">
-              Keep your wishlist updated! Rooms can be rented quickly, so check back often and reach out to landlords for the best deals.
+              <Typography
+                variant="paraSecondary"
+                className="opacity-90 text-lg flex items-center justify-center gap-2"
+              >
+                <span>✉️</span> {user?.email}
+              </Typography>
+
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2.5 rounded-full">
+                <span className="text-xl">👤</span>
+                <Typography
+                  variant="paraSecondary"
+                  className="text-white font-medium capitalize"
+                >
+                  {user?.userType ? `${user.userType} Account` : "User Account"}
+                </Typography>
+              </div>
+            </div>
+
+            <Typography
+              variant="paraSecondary"
+              className="text-white/80 text-lg max-w-2xl leading-relaxed mt-4"
+            >
+              Manage your profile and personalize your experience
             </Typography>
           </div>
-        )}
+        </section>
+
+        <section className="w-full max-w-4xl px-6 py-16">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 p-10 transition-colors duration-300">
+            <div className="text-center mb-8">
+              <Typography variant="h2" className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-3">
+                Appearance Settings
+              </Typography>
+              <Typography variant="paraSecondary" className="text-gray-600 dark:text-gray-400">
+                Customize how the app looks for you
+              </Typography>
+            </div>
+
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex items-center gap-8 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-8 rounded-2xl w-full max-w-md">
+                <div className="flex-1 text-center">
+                  <div className="text-5xl mb-3">
+                    {theme === "light" ? "☀️" : "🌙"}
+                  </div>
+                  <Typography variant="h3" className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-1">
+                    {theme === "light" ? "Light Mode" : "Dark Mode"}
+                  </Typography>
+                  <Typography variant="paraSecondary" className="text-sm text-gray-600 dark:text-gray-400">
+                    Currently active
+                  </Typography>
+                </div>
+              </div>
+
+              <Button
+                onClick={toggleTheme}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 px-12 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-3"
+              >
+                {theme === "light" ? (
+                  <>
+                    <Moon className="w-6 h-6" />
+                    Switch to Dark Mode
+                  </>
+                ) : (
+                  <>
+                    <Sun className="w-6 h-6" />
+                    Switch to Light Mode
+                  </>
+                )}
+              </Button>
+
+              <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/30 rounded-xl border border-blue-100 dark:border-blue-800 w-full">
+                <Typography variant="h4" className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-2">
+                  💡 Did you know?
+                </Typography>
+                <Typography variant="paraSecondary" className="text-blue-700 dark:text-blue-300">
+                  Dark mode can help reduce eye strain in low-light environments and may save battery life on devices with OLED screens.
+                </Typography>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 text-center transition-colors duration-300">
+              <div className="text-4xl mb-3">🎨</div>
+              <Typography variant="h3" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">
+                {theme === "light" ? "Light" : "Dark"}
+              </Typography>
+              <Typography variant="paraSecondary" className="text-gray-600 dark:text-gray-400">Current Theme</Typography>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 text-center transition-colors duration-300">
+              <div className="text-4xl mb-3">✅</div>
+              <Typography variant="h3" className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                Active
+              </Typography>
+              <Typography variant="paraSecondary" className="text-gray-600 dark:text-gray-400">Account Status</Typography>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 text-center transition-colors duration-300">
+              <div className="text-4xl mb-3">📅</div>
+              <Typography variant="h3" className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+              </Typography>
+              <Typography variant="paraSecondary" className="text-gray-600 dark:text-gray-400">Member Since</Typography>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
