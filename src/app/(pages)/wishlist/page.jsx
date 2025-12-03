@@ -125,12 +125,14 @@ export default function WishlistPage() {
       <main className="max-w-7xl mx-auto px-6 py-24">
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <Typography variant="h1" className="text-3xl font-bold mb-2">
+            <Typography variant="h1" className="text-3xl font-bold mb-2 block">
               My Wishlist ❤️
             </Typography>
             <Typography variant="body" className="text-gray-600">
-              {wishlistRooms.length}{" "}
-              {wishlistRooms.length === 1 ? "room" : "rooms"} saved for later
+              <strong>
+                {wishlistRooms.length}{" "}
+                {wishlistRooms.length === 1 ? "room" : "rooms"} saved for later
+              </strong>
             </Typography>
           </div>
 
@@ -150,17 +152,20 @@ export default function WishlistPage() {
         {wishlistRooms.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-lg shadow-sm">
             <Heart className="w-20 h-20 mx-auto text-gray-300 mb-6" />
-            <Typography variant="h2" className="text-2xl font-semibold mb-3">
+            <Typography
+              variant="h2"
+              className="text-2xl font-semibold mb-3 block"
+            >
               Your wishlist is empty
             </Typography>
             <Typography
               variant="body"
-              className="text-gray-600 mb-6 max-w-md mx-auto"
+              className="text-gray-600 mb-6 max-w-md mx-auto block"
             >
               Start exploring amazing rooms and save your favorites here! Click
               the heart icon on any room to add it to your wishlist.
             </Typography>
-            <Link href={NAVIGATION_ROUTES.HOST_UIPAGE}>
+            <Link href={NAVIGATION_ROUTES.UIPAGE}>
               <Button className="bg-blue-600 hover:bg-blue-700">
                 Explore Rooms
               </Button>

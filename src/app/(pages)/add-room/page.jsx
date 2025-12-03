@@ -107,23 +107,21 @@ export default function AddRoom() {
       <div className="absolute top-4 right-6 z-20 flex items-center gap-4">
         {/* Back Button */}
 
-        <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700">
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700 flex justify-center items-center">
           <Link href={NAVIGATION_ROUTES.HOST_UIPAGE}>
-            <Typography variant="linkPrimary">
-              {" "}
+            <Typography
+              variant="linkPrimary"
+              className="flex flex-col items-center"
+            >
+              {/* Filled Home Icon */}
               <svg
-                className="w-6 h-6 text-black"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
+                className="w-8 h-8 text-red-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
+                <path d="M10 2L2 8h2v8h4V12h4v4h4V8h2L10 2z" />
               </svg>
+              <strong>Home</strong>
             </Typography>
           </Link>
         </div>
@@ -579,7 +577,7 @@ export default function AddRoom() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center justify-center gap-2">

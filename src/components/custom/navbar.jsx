@@ -65,7 +65,7 @@ export default function NavBar({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Location Input */}
           <div>
-            <label className="font-semibold text-gray-700 mb-2 block">
+            <label className="font-semibold text-gray-700 mb-2 block ">
               Location
             </label>
             <input
@@ -79,19 +79,19 @@ export default function NavBar({
 
           {/* Room Type Dropdown */}
           <div>
-            <label className="font-semibold text-gray-700 mb-2 block">
+            <label className="font-semibold text-gray-700 mb-2 block ">
               Room Type
             </label>
 
             <DropdownMenu>
               <DropdownMenuTrigger
                 ref={triggerRef}
-                className="w-full p-3 flex items-center justify-between border rounded-xl hover:bg-gray-50"
+                className="w-full p-3 flex items-center justify-between border rounded-xl hover:bg-gray-50 "
               >
                 {selectedRoom} <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="w-full">
+              <DropdownMenuContent className="w-full ">
                 {ROOM_TYPE.map((item) => (
                   <DropdownMenuItem
                     key={item}

@@ -11,6 +11,7 @@ import { Typography } from "./typography";
 
 export default function UserHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -60,30 +61,43 @@ export default function UserHeader() {
 
         {/* 🔹 CASE 2: User logged in  */}
         {isLoggedIn && (
-          <Sheet>
-            <SheetTrigger>
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger onClick={() => setOpen(true)}>
               <Menu className="w-8 h-8 text-gray-700" />
             </SheetTrigger>
 
-            <SheetContent side="left" className="p-5 space-y-6">
-              <SheetTitle className="text-2xl font-bold">{RENTAL}</SheetTitle>
+            <SheetContent
+              side="right"
+              className="p-5 h-full flex flex-col justify-between"
+            >
+              {/* 🔹 TOP SECTION: Title + Menu Items */}
+              <div>
+                <SheetTitle className="text-2xl font-bold">{RENTAL}</SheetTitle>
 
-              <nav className="flex flex-col gap-4 mt-4">
-                {menuItem.map((item) => (
-                  <Link key={item.name} href={item.href}>
-                    <Typography
-                      variant="body"
-                      className="hover:text-blue-600 transition-colors"
+                <nav className="flex flex-col gap-4 mt-6 cursor-pointer">
+                  {menuItem.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
                     >
-                      {item.name}
-                    </Typography>
-                  </Link>
-                ))}
+                      <Typography variant="body">{item.name}</Typography>
+                    </Link>
+                  ))}
+                </nav>
+              </div>
 
-                <button onClick={handleLogout} className="text-left">
-                  <Typography variant="buttonPrimary">Log out</Typography>
+              {/* 🔹 BOTTOM SECTION: Logout Button */}
+              <div className="mt-auto pt-4 mb-10">
+                <button onClick={handleLogout} className="w-full">
+                  <Typography
+                    variant="buttonPrimary"
+                    className="text-black bg-red-400 hover:bg-red-700 w-full text-center py-2 rounded-lg"
+                  >
+                    Log out
+                  </Typography>
                 </button>
-              </nav>
+              </div>
             </SheetContent>
           </Sheet>
         )}

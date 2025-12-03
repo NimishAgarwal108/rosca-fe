@@ -1,5 +1,6 @@
 "use client";
 
+import BackArrow from "@/components/custom/back_arrow";
 import EditRoomModal from "@/components/custom/EditRoomModal";
 import Footer from "@/components/custom/footer";
 import HostHeader from "@/components/custom/host_header";
@@ -225,13 +226,7 @@ export default function ProfilePage() {
           id="profile-hero"
           className="relative w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white overflow-hidden"
         >
-          <div className="absolute top-4 left-6 z-20 cursor-pointer">
-            <Link href={NAVIGATION_ROUTES.UIPAGE}>
-              <Typography variant="link" className="text-black text-3xl">
-                ←
-              </Typography>
-            </Link>
-          </div>
+          <BackArrow />
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>

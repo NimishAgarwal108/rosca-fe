@@ -1,11 +1,11 @@
 "use client";
 
 import { NAVIGATION_ROUTES } from "@/app/constant";
+import { Typography } from "@/components/custom/typography";
 import { ArrowRight, Check, Home, Key, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-
 export default function UserTypePage() {
   const [selectedType, setSelectedType] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -141,10 +141,6 @@ export default function UserTypePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 relative overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-      </div>
 
       <div className="max-w-5xl w-full relative z-10">
         <div className="text-center mb-12">
@@ -163,7 +159,7 @@ export default function UserTypePage() {
         </div>
 
         {/* Cards Container */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-6 mb-8 cursor-pointer">
           {/* User/Tenant Card */}
           <button
             onClick={() => handleTypeChange("user")}
@@ -175,7 +171,7 @@ export default function UserTypePage() {
                   ? "scale-105 shadow-2xl"
                   : "hover:scale-102 shadow-xl hover:shadow-2xl"
               }
-              disabled:opacity-50 disabled:cursor-not-allowed
+              disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
             `}
           >
             <div
@@ -201,7 +197,7 @@ export default function UserTypePage() {
               </div>
 
               {/* Content */}
-              <div className="relative z-10">
+              <div className="relative z-10 cursor-pointer">
                 <div
                   className={`
                   inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6
@@ -220,9 +216,12 @@ export default function UserTypePage() {
                   />
                 </div>
 
-                <h3 className="text-2xl font-bold text-white mb-3">
+                <Typography
+                  variant="h3"
+                  className="text-2xl font-bold text-white mb-3 block"
+                >
                   Find a Room
-                </h3>
+                </Typography>
                 <p className="text-white/90 text-base leading-relaxed">
                   Browse and discover the perfect rental space that fits your
                   needs and budget.
@@ -239,7 +238,7 @@ export default function UserTypePage() {
               {/* Hover Arrow */}
               <div
                 className={`
-                relative z-10 mt-6 flex items-center gap-2 text-white font-semibold
+                relative z-10 mt-6 flex text-center gap-2 text-white font-semibold
                 transition-all duration-300
                 ${
                   selectedType === "user"
@@ -265,13 +264,13 @@ export default function UserTypePage() {
                   ? "scale-105 shadow-2xl"
                   : "hover:scale-102 shadow-xl hover:shadow-2xl"
               }
-              disabled:opacity-50 disabled:cursor-not-allowed
+              disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
             `}
           >
             <div
               className={`
               relative bg-gradient-to-br p-8 h-full min-h-[280px]
-              flex flex-col justify-between
+              flex flex-col justify-between 
               ${
                 selectedType === "host"
                   ? "from-rose-500 to-orange-400"
@@ -280,7 +279,7 @@ export default function UserTypePage() {
             `}
             >
               {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 opacity-10 ">
                 <div
                   className="absolute inset-0"
                   style={{
@@ -291,7 +290,7 @@ export default function UserTypePage() {
               </div>
 
               {/* Content */}
-              <div className="relative z-10">
+              <div className="relative z-10 block ">
                 <div
                   className={`
                   inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6
@@ -304,15 +303,18 @@ export default function UserTypePage() {
                 `}
                 >
                   <Key
-                    className={`w-8 h-8 ${
+                    className={`w-8 h-8  ${
                       selectedType === "host" ? "text-rose-600" : "text-white"
                     }`}
                   />
                 </div>
-
-                <h3 className="text-2xl font-bold text-white mb-3">
+                <div className=" w-full"></div>
+                <Typography
+                  variant="h3"
+                  className="text-2xl font-bold text-white mb-3"
+                >
                   List Your Property
-                </h3>
+                </Typography>
                 <p className="text-white/90 text-base leading-relaxed">
                   Become a host and start earning by renting out your available
                   spaces.

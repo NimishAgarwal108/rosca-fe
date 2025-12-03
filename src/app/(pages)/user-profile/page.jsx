@@ -1,5 +1,6 @@
 "use client";
 
+import BackArrow from "@/components/custom/back_arrow";
 import Footer from "@/components/custom/footer";
 import { Typography } from "@/components/custom/typography";
 import UserHeader from "@/components/custom/user_header";
@@ -175,13 +176,7 @@ export default function UserProfilePage() {
           id="profile-hero"
           className="relative w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 text-white overflow-hidden"
         >
-          <div className="absolute top-4 left-6 z-20 cursor-pointer">
-            <Link href={NAVIGATION_ROUTES.HOST_UIPAGE}>
-              <Typography variant="link" className="text-black text-3xl">
-                ←
-              </Typography>
-            </Link>
-          </div>
+          <BackArrow />
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>

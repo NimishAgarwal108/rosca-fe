@@ -248,7 +248,7 @@ export default function Main({ roomType, priceRange, location }) {
                 {/* View Details Button */}
                 <Button
                   onClick={() => handleViewDetails(room._id)}
-                  className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded-xl py-3"
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded-xl py-3 cursor-pointer"
                 >
                   View Details
                 </Button>

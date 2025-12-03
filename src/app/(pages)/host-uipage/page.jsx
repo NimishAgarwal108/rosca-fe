@@ -1,5 +1,6 @@
 "use client";
 
+import About from "@/components/custom/about";
 import Footer from "@/components/custom/footer";
 import HostHeader from "@/components/custom/host_header";
 import NavBar from "@/components/custom/navbar";
@@ -22,7 +23,7 @@ export default function Page() {
       />
 
       <Main roomType={roomType} priceRange={priceRange} location={location} />
-
+      <About />
       <Footer id="footer" />
     </div>
   );
