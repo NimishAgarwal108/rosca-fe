@@ -2,8 +2,8 @@
 
 import EditRoomModal from "@/components/custom/EditRoomModal";
 import Footer from "@/components/custom/footer";
+import HostHeader from "@/components/custom/host_header";
 import { Typography } from "@/components/custom/typography";
-import UserHeader from "@/components/custom/user_header";
 import ViewRoomModal from "@/components/custom/ViewRoomModal";
 import { Button } from "@/components/ui/button";
 import { deleteRoom as deleteRoomApi } from "@/lib/API/roomApi";
@@ -219,7 +219,7 @@ export default function ProfilePage() {
 
   return (
     <div className="mt-15 bg-gradient-to-br from-gray-50 via-white to-indigo-50 min-h-screen">
-      <UserHeader />
+      <HostHeader />
       <main className="flex flex-col items-center justify-center">
         <section
           id="profile-hero"
@@ -335,7 +335,7 @@ export default function ProfilePage() {
                 <div className="text-4xl mb-2">🏠</div>
                 <Typography
                   variant="h3"
-                  className="text-3xl font-bold text-indigo-600 mb-1"
+                  className="text-3xl font-bold text-indigo-600 mb-1 block"
                 >
                   {userRooms.length}
                 </Typography>
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                 <div className="text-4xl mb-2">✅</div>
                 <Typography
                   variant="h3"
-                  className="text-3xl font-bold text-green-600 mb-1"
+                  className="text-3xl font-bold text-green-600 mb-1 block"
                 >
                   {userRooms.length}
                 </Typography>
@@ -359,7 +359,7 @@ export default function ProfilePage() {
                 <div className="text-4xl mb-2">👁️</div>
                 <Typography
                   variant="h3"
-                  className="text-3xl font-bold text-orange-600 mb-1"
+                  className="text-3xl font-bold text-orange-600 mb-1 block"
                 >
                   {userRooms.reduce((acc, room) => acc + (room.views || 0), 0)}
                 </Typography>
@@ -372,11 +372,11 @@ export default function ProfilePage() {
         </section>
 
         <section id="rooms" className="w-full max-w-6xl py-16 px-6">
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center justify-center text-center mb-10">
             <div>
               <Typography
                 variant="h1"
-                className="text-4xl font-bold text-gray-800 mb-2"
+                className="text-4xl font-bold text-gray-800 mb-2 block"
               >
                 My Properties
               </Typography>
@@ -492,19 +492,19 @@ export default function ProfilePage() {
               <div className="text-8xl mb-6 animate-bounce">🏠</div>
               <Typography
                 variant="h2"
-                className="text-gray-800 mb-4 text-3xl font-bold"
+                className="text-gray-800 mb-4 text-3xl font-bold block"
               >
                 No Properties Yet
               </Typography>
               <Typography
                 variant="paraPrimary"
-                className="text-gray-600 mb-8 text-lg max-w-md mx-auto"
+                className="text-gray-600 mb-10 text-lg max-w-md mx-auto"
               >
                 Start your journey as a host by adding your first property. It
                 only takes a few minutes!
               </Typography>
               <Link href={NAVIGATION_ROUTES.ADD_ROOM}>
-                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 px-10 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 px-10 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mt-5">
                   <span className="text-xl mr-2">+</span> Add Your First
                   Property
                 </Button>

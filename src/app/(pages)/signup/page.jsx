@@ -124,7 +124,7 @@ function SignUpContent() {
   };
 
   return (
-    <div className="flex w-full min-h-screen bg-gradient-to-br from-orange-400 via-pink-500 to-purple-700 relative overflow-hidden">
+    <div className="flex w-full min-h-screen bg-gray-200 ">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div

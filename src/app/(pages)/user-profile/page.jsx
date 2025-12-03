@@ -1,8 +1,8 @@
 "use client";
 
 import Footer from "@/components/custom/footer";
-import HostHeader from "@/components/custom/host_header";
 import { Typography } from "@/components/custom/typography";
+import UserHeader from "@/components/custom/user_header";
 import { Button } from "@/components/ui/button";
 import { getCurrentUserInfo, uploadProfilePicture } from "@/lib/API/userApi";
 import { useAuthStore } from "@/Store/Profile-data";
@@ -169,7 +169,7 @@ export default function UserProfilePage() {
 
   return (
     <div className="mt-15 bg-gradient-to-br from-gray-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 min-h-screen transition-colors duration-300">
-      <HostHeader />
+      <UserHeader />
       <main className="flex flex-col items-center justify-center">
         <section
           id="profile-hero"
@@ -343,7 +343,6 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          {/* Quick Stats */}
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 text-center transition-colors duration-300">
               <div className="text-4xl mb-3">🎨</div>

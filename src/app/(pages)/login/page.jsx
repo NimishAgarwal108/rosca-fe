@@ -110,7 +110,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-orange-400 via-pink-500 to-purple-700">
+    <div className="flex min-h-screen w-full bg-gray-200">
       {/* Left Section - Image & Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 to-purple-900/90 z-10"></div>
@@ -334,21 +334,21 @@ function LoginContent() {
           </div>
 
           {/* Footer Text */}
-          <div className="mt-6 text-center">
-            <Typography variant="body" className="text-white/80 text-sm">
+          <div className="mt-6 text-center text-black">
+            <Typography variant="body" className=" text-sm">
               By continuing, you agree to our{" "}
               <Link
                 href={NAVIGATION_ROUTES.TERMS_CONDITIONS}
-                className="underline hover:text-white transition-colors"
+                className="underline hover:text-blue transition-colors"
               >
-                Terms of Service
+                <strong> Terms of Service</strong>
               </Link>{" "}
               and{" "}
               <Link
                 href={NAVIGATION_ROUTES.PRIVACY_POLICY}
-                className="underline hover:text-white transition-colors"
+                className="underline hover:text-blue transition-colors"
               >
-                Privacy Policy
+                <strong> Privacy Policy</strong>
               </Link>
             </Typography>
           </div>

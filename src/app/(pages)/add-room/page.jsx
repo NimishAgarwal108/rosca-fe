@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { addRoom } from "@/lib/API/roomApi";
 import { AddRoom_Fields } from "@/Store/AddRooms_Fields";
 import { ErrorMessage, Form, Formik } from "formik";
+import Link from "next/link";
 import { toast } from "sonner";
 import * as Yup from "yup";
 
@@ -25,7 +26,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BackArrow from "@/components/custom/back_arrow";
 import {
   Command,
   CommandEmpty,
@@ -103,106 +103,47 @@ export default function AddRoom() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-orange-400 via-pink-500 to-purple-700 relative overflow-hidden">
-      {/* Animated Background Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div className="min-h-screen w-full bg-gray-300">
+      <div className="absolute top-4 right-6 z-20 flex items-center gap-4">
+        {/* Back Button */}
+
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700">
+          <Link href={NAVIGATION_ROUTES.HOST_UIPAGE}>
+            <Typography variant="linkPrimary">
+              {" "}
+              <svg
+                className="w-6 h-6 text-black"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                />
+              </svg>
+            </Typography>
+          </Link>
+        </div>
       </div>
 
-      <BackArrow />
-
       <div className="relative z-10 flex flex-col items-center justify-start py-12 px-4">
-        <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700">
-          <div className="inline-block p-3 bg-white/10 backdrop-blur-md rounded-2xl mb-4 shadow-xl">
-            <svg
-              className="w-12 h-12 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
-          </div>
-          <Typography variant="h2" className="text-white drop-shadow-2xl mb-2">
-            List Your Property
-          </Typography>
-          <p className="text-white/80 text-lg">
-            Fill in the details to get started
-          </p>
-        </div>
-
         {/* Progress Steps */}
-        <div className="w-full max-w-3xl mb-8 animate-in fade-in slide-in-from-top duration-700 delay-200">
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                    currentStep >= 1
-                      ? "bg-white text-purple-600"
-                      : "bg-white/20 text-white/60"
-                  }`}
-                >
-                  1
-                </div>
-                <span className="text-white font-medium hidden sm:block">
-                  Basic Info
-                </span>
-              </div>
-              <div className="flex-1 h-1 bg-white/20 mx-4">
-                <div
-                  className={`h-full bg-white transition-all duration-500 ${
-                    currentStep >= 2 ? "w-full" : "w-0"
-                  }`}
-                ></div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                    currentStep >= 2
-                      ? "bg-white text-purple-600"
-                      : "bg-white/20 text-white/60"
-                  }`}
-                >
-                  2
-                </div>
-                <span className="text-white font-medium hidden sm:block">
-                  Details
-                </span>
-              </div>
-              <div className="flex-1 h-1 bg-white/20 mx-4">
-                <div
-                  className={`h-full bg-white transition-all duration-500 ${
-                    currentStep >= 3 ? "w-full" : "w-0"
-                  }`}
-                ></div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                    currentStep >= 3
-                      ? "bg-white text-purple-600"
-                      : "bg-white/20 text-white/60"
-                  }`}
-                >
-                  3
-                </div>
-                <span className="text-white font-medium hidden sm:block">
-                  Images
-                </span>
-              </div>
-            </div>
+        <div className="w-full max-w-5xl mb-8 animate-in fade-in slide-in-from-top duration-700 delay-200">
+          <div className="bg-blue-400 border rounded-3xl p-6 shadow-xl text-center">
+            <Typography variant="h1" className="block text-black">
+              List Your Property
+            </Typography>
+            <Typography variant="paraPrimary" className="text-gray-600 ">
+              <strong> Fill in the details to get started</strong>
+            </Typography>
           </div>
         </div>
 
         {/* Form Card */}
-        <div className="w-full max-w-3xl animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+        <div className="w-full max-w-6xl animate-in fade-in slide-in-from-bottom duration-700 delay-300">
           <div className="bg-white/95 backdrop-blur-xl border border-white/50 rounded-3xl shadow-2xl p-8 md:p-12">
             {/* Decorative Corners */}
             <div className="absolute top-0 left-0 w-20 h-20 border-t-4 border-l-4 border-purple-600 rounded-tl-3xl opacity-30"></div>
@@ -690,7 +631,7 @@ export default function AddRoom() {
         </div>
 
         {/* Trust Indicators */}
-        <div className="mt-12 flex items-center justify-center gap-8 text-white/80 text-sm animate-in fade-in duration-700 delay-500">
+        <div className="mt-12 flex items-center justify-center gap-8 text-black  text-sm animate-in fade-in duration-700 delay-500">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path
