@@ -370,15 +370,18 @@ export default function ProfilePage() {
         </section>
 
         <section id="rooms" className="w-full max-w-6xl py-16 px-6">
-          <div className="flex items-center justify-center text-center mb-10">
-            <div>
+          <div className="flex items-center justify-center text-center mb-10 gap-150">
+            <div className="block">
               <Typography
                 variant="h1"
                 className="text-4xl font-bold text-gray-800 mb-2 block"
               >
                 My Properties
               </Typography>
-              <Typography variant="paraSecondary" className="text-gray-600">
+              <Typography
+                variant="paraSecondary"
+                className="text-gray-600 block"
+              >
                 Manage and edit your room listings
               </Typography>
             </div>
@@ -386,7 +389,7 @@ export default function ProfilePage() {
             {userRooms.length > 0 && (
               <Link href={NAVIGATION_ROUTES.ADD_ROOM}>
                 <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                  <span className="text-lg mr-2">+</span> Add Property
+                  <span className="text-lg mr-2 block">+</span> Add Property
                 </Button>
               </Link>
             )}

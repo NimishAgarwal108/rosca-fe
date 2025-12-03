@@ -122,7 +122,7 @@ export default function WishlistPage() {
     <div className="min-h-screen bg-gray-50">
       <UserHeader />
 
-      <main className="max-w-7xl mx-auto px-6 py-24">
+      <main className="max-w-9xl mx-auto px-6 py-24">
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="w-full text-center">
             <Typography variant="h1" className="text-3xl font-bold mb-2 block">
@@ -300,7 +300,10 @@ export default function WishlistPage() {
             {/* Additional Info Section */}
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-6 bg-blue-50 rounded-lg border border-blue-100">
-                <Typography variant="h3" className="text-lg font-semibold mb-2">
+                <Typography
+                  variant="h3"
+                  className="text-lg font-semibold mb-2 block"
+                >
                   💡 Pro Tip
                 </Typography>
                 <Typography variant="body" className="text-gray-700">
@@ -311,7 +314,10 @@ export default function WishlistPage() {
               </div>
 
               <div className="p-6 bg-green-50 rounded-lg border border-green-100">
-                <Typography variant="h3" className="text-lg font-semibold mb-2">
+                <Typography
+                  variant="h3"
+                  className="text-lg font-semibold mb-2 block"
+                >
                   🔔 Stay Notified
                 </Typography>
                 <Typography variant="body" className="text-gray-700">
@@ -330,7 +336,10 @@ export default function WishlistPage() {
                 >
                   {wishlistRooms.length}
                 </Typography>
-                <Typography variant="body" className="text-sm text-gray-600">
+                <Typography
+                  variant="body"
+                  className="text-sm text-gray-600 block"
+                >
                   Saved Rooms
                 </Typography>
               </div>
@@ -342,7 +351,10 @@ export default function WishlistPage() {
                 >
                   {wishlistRooms.filter((r) => r.price).length}
                 </Typography>
-                <Typography variant="body" className="text-sm text-gray-600">
+                <Typography
+                  variant="body"
+                  className="text-sm text-gray-600 block"
+                >
                   With Pricing
                 </Typography>
               </div>
@@ -354,7 +366,10 @@ export default function WishlistPage() {
                 >
                   {new Set(wishlistRooms.map((r) => r.location)).size}
                 </Typography>
-                <Typography variant="body" className="text-sm text-gray-600">
+                <Typography
+                  variant="body"
+                  className="text-sm text-gray-600 block"
+                >
                   Locations
                 </Typography>
               </div>
@@ -362,7 +377,7 @@ export default function WishlistPage() {
               <div className="bg-white p-4 rounded-lg shadow-sm text-center">
                 <Typography
                   variant="h3"
-                  className="text-2xl font-bold text-orange-600"
+                  className="text-2xl font-bold text-orange-600 block"
                 >
                   {wishlistRooms.length > 0 &&
                   wishlistRooms.some((r) => r.price)

@@ -108,7 +108,7 @@ export default function AddRoom() {
         {/* Back Button */}
 
         <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700 flex justify-center items-center">
-          <Link href={NAVIGATION_ROUTES.HOST_UIPAGE}>
+          <Link href={NAVIGATION_ROUTES.UIPAGE}>
             <Typography
               variant="linkPrimary"
               className="flex flex-col items-center"
@@ -216,7 +216,7 @@ export default function AddRoom() {
                     setImagePreviews([]);
                     setTimeout(() => {
                       window.location.href =
-                        NAVIGATION_ROUTES?.USER_PROFILE || "/user-profile";
+                        NAVIGATION_ROUTES?.HOST_PROFILE || "/host-profile";
                     }, 1000);
                   } else {
                     console.warn("⚠️ Response missing success flag:", response);

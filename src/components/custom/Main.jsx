@@ -128,7 +128,7 @@ export default function Main({ roomType, priceRange, location }) {
 
   // Navigate to room details page
   const handleViewDetails = (id) => {
-    router.push(`/user/rooms/${id}`);
+    router.push(`/item-details/${id}`);
   };
 
   // ----------------------------
