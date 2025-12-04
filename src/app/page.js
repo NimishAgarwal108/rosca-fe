@@ -338,6 +338,9 @@ export default function Home() {
 
         <Main />
         <About />
+        <div>
+          {/*this Div added only for make a commit on Nimish Agarwal Repo.*/}
+        </div>
         <Footer />
       </main>
     </>
